@@ -1,0 +1,47 @@
+# Entorno Virtual
+venv/
+env/
+.env
+.env.*
+
+# Archivos compilados de Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Configuraciones locales
+instance/
+config.pyc
+*.pyo
+*.pyd
+
+# Logs y archivos temporales
+*.log
+tmp/
+*.tmp
+
+# Archivos de base de datos locales
+*.sqlite
+*.db
+*.db-journal
+
+# Migraciones
+migrations/versions/*.pyc
+migrations/versions/__pycache__/
+
+# IDEs y editores
+.vscode/
+.idea/
+*.swp
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+
+# Dependencias
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Docker (si lo usas)
+docker-compose.override.yml
+.env.docker

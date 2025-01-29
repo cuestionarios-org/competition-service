@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  postgres-competition-dev:
+    image: postgres:15
+    env_file:
+      - .env
+    container_name: postgres_container
+    # environment:
+    #   POSTGRES_USER: admin
+    #   POSTGRES_PASSWORD: admin1234
+    #   POSTGRES_DB: db_competition
+    ports:
+      - "5463:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data  # Volumen gestionado por Docker
+    restart: always
+    networks:
+      - my-network  # Especificamos la misma red
+
+ 
+volumes:
+  postgres_data:  # Docker se encarga de gestionarlo
+    external: false
+
+networks:
+  my-network:   # Definimos la red
+    driver: bridge

@@ -1,0 +1,5 @@
+
+from .competition import Competition
+from .competition_quiz import CompetitionQuiz
+from .competition_participant import CompetitionParticipant
+from .competition_quiz_participants import CompetitionQuizParticipants
