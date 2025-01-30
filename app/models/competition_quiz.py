@@ -22,6 +22,11 @@ class CompetitionQuiz(db.Model):
     competition = db.relationship('Competition', back_populates='quizzes')
     # Relación con CompetitionQuizParticipants
     participants = db.relationship('CompetitionQuizParticipants', back_populates='competition_quiz')
+    answers = db.relationship(
+        'CompetitionQuizAnswer', 
+        back_populates='competition_quiz', 
+        cascade="all, delete-orphan"  # Elimina respuestas si se borra el quiz de la competencia
+    )
     
     __table_args__ = (
         db.UniqueConstraint('competition_id', 'quiz_id', name='uq_competition_quiz'),  # Evita duplicados

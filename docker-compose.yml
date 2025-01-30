@@ -6,19 +6,28 @@ services:
     env_file:
       - .env
     container_name: postgres_container
-    # environment:
-    #   POSTGRES_USER: admin
-    #   POSTGRES_PASSWORD: admin1234
-    #   POSTGRES_DB: db_competition
     ports:
       - "5463:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data  # Volumen gestionado por Docker
     restart: always
     networks:
-      - my-network  # Especificamos la misma red
+      - my-network  # Misma red que pgAdmin
 
- 
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: always
+    ports:
+      - "5050:80"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com  # Cambia esto si quieres otro usuario
+      PGADMIN_DEFAULT_PASSWORD: admin1234  # Debe coincidir con tu PostgreSQL
+    depends_on:
+      - postgres-competition-dev
+    networks:
+      - my-network  # Misma red para comunicar pgAdmin con PostgreSQL
+
 volumes:
   postgres_data:  # Docker se encarga de gestionarlo
     external: false
