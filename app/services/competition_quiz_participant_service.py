@@ -2,6 +2,9 @@ from app.models import CompetitionQuizParticipants, CompetitionQuiz, Competition
 from extensions import db
 from werkzeug.exceptions import BadRequest, NotFound
 import datetime as dt
+from datetime  import timezone
+from sqlalchemy.exc import SQLAlchemyError
+
 
 class CompetitionQuizParticipantService:
     @staticmethod
@@ -19,7 +22,11 @@ class CompetitionQuizParticipantService:
         if CompetitionQuizParticipants.query.filter_by(competition_quiz_id=competition_quiz_id, participant_id=participant_id).first():
             raise BadRequest(f"Participant {participant_id} is already registered in quiz {competition_quiz_id}.")
 
-        participant = CompetitionQuizParticipants(competition_quiz_id=competition_quiz_id, participant_id=participant_id)
+        participant = CompetitionQuizParticipants(
+            competition_quiz_id=competition_quiz_id, 
+            participant_id=participant_id,
+            start_time=dt.datetime.now(timezone.utc) ,
+            )
         db.session.add(participant)
         db.session.commit()
         return participant
@@ -69,27 +76,24 @@ class CompetitionQuizParticipantService:
             "quiz_id": cuestionario_en_competencia.quiz_id
         }
         return response
-
     @staticmethod
-    def finish_quiz(competition_quiz_id, participant_id, answers):
+    def finish_quiz(competition_quiz_id, participant_id, answers, quiz):
         """
-        Registra el tiempo de finalización y guarda las respuestas del participante.
+        Registra el tiempo de finalización y guarda las respuestas validadas con su corrección.
         """
-        time_finish = db.func.now()
-        cuestionario_en_competencia = CompetitionQuiz.query.get(competition_quiz_id)
+        time_finish = dt.datetime.now(timezone.utc)
         
+        cuestionario_en_competencia = CompetitionQuiz.query.get(competition_quiz_id)
         if not cuestionario_en_competencia:
             raise NotFound(f"Competition quiz with ID {competition_quiz_id} not found.")
         
         competition_id = cuestionario_en_competencia.competition_id
 
         # Validar inscripción en competencia
-        participante_en_competencia = CompetitionParticipant.query.filter_by(
+        if not CompetitionParticipant.query.filter_by(
             competition_id=competition_id,
             participant_id=participant_id
-        ).first()
-        
-        if not participante_en_competencia:
+        ).first():
             raise NotFound(f"Participant {participant_id} not registered in competition {competition_id}.")
 
         # Obtener participación en cuestionario
@@ -104,51 +108,82 @@ class CompetitionQuizParticipantService:
         if participante_en_cuestionario.end_time:
             raise BadRequest("Quiz already completed.")
 
-        # Validar y registrar respuestas
-        if answers:
-            # Verificar duplicados
-            existing_answers = CompetitionQuizAnswer.query.filter(
-                CompetitionQuizAnswer.competition_quiz_id == competition_quiz_id,
-                CompetitionQuizAnswer.participant_id == participant_id,
-                CompetitionQuizAnswer.answer_id.in_(answers)
-            ).all()
+        # Validación de tiempo límite mejorada
+        time_limit = quiz.get("time_limit", 0)
+        if time_limit > 0:
+            time_start = participante_en_cuestionario.start_time
+            tiempo_transcurrido = (time_finish - time_start).total_seconds()
             
-            if existing_answers:
-                raise BadRequest(f"Duplicate answers found: {[a.answer_id for a in existing_answers]}")
+            if tiempo_transcurrido > time_limit:
+                raise BadRequest(
+                    f"Tiempo límite excedido ({tiempo_transcurrido:.1f}s de {time_limit}s)"
+                )
+        else:
+            raise BadRequest("El cuestionario no tiene tiempo límite configurado")
 
-            # Crear todas las respuestas en una sola transacción
-            try:
-                new_answers = [
+        # Validación de estructura de respuestas
+        if not answers or not all(isinstance(a, dict) and 'answer_id' in a and 'is_correct' in a for a in answers):
+            raise BadRequest("Formato de respuestas inválido. Se espera lista de diccionarios con answer_id y is_correct")
+
+        # Procesamiento de respuestas
+        try:
+            # Extraer y validar IDs de respuestas
+            answer_ids = [a['answer_id'] for a in answers]
+            
+            # Verificar duplicados usando set para O(1) lookups
+            unique_ids = set()
+            for a in answers:
+                if a['answer_id'] in unique_ids:
+                    raise BadRequest(f"Respuesta duplicada para answer_id: {a['answer_id']}")
+                unique_ids.add(a['answer_id'])
+
+            # Crear respuestas con validación de tipos
+            new_answers = []
+            for answer in answers:
+                if not isinstance(answer['is_correct'], bool):
+                    raise BadRequest(f"Valor is_correct inválido para answer_id {answer['answer_id']}")
+                    
+                new_answers.append(
                     CompetitionQuizAnswer(
                         competition_quiz_id=competition_quiz_id,
                         participant_id=participant_id,
-                        answer_id=answer_id
+                        answer_id=answer['answer_id'],
+                        is_correct=answer['is_correct'],
+                        question_id=answer.get('question_id')  # Si viene del gateway
                     )
-                    for answer_id in answers
-                ]
-                
-                db.session.bulk_save_objects(new_answers)
-                participante_en_cuestionario.end_time = time_finish
-                db.session.commit()
-                
-            except Exception as e:
-                db.session.rollback()
-                raise BadRequest(f"Error saving answers: {str(e)}")
-        else:
-            raise BadRequest("No answers provided.")
+                )
 
-        # Calcular resultados (aquí integrarías con el MS de quizzes)
-        # TODO: Lógica de cálculo de puntaje
+            # Transacción atómica
+            db.session.bulk_save_objects(new_answers)
+            participante_en_cuestionario.end_time = time_finish
+            participante_en_cuestionario.score = sum(a['is_correct'] for a in answers)  # Si tienes campo score
+            db.session.commit()
 
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            raise BadRequest(f"Error de base de datos: {str(e)}")
+
+        # Estadísticas detalladas
+        total_preguntas = quiz.get('total_questions', len(answers))
+        tiempo_total = (participante_en_cuestionario.end_time - participante_en_cuestionario.start_time).total_seconds()
+        
         return {
             "competition_id": competition_id,
             "participant_id": participant_id,
             "quiz_id": cuestionario_en_competencia.quiz_id,
-            "answers_submitted": len(answers),
-            "start_time": participante_en_cuestionario.start_time.isoformat(),
-            "end_time": participante_en_cuestionario.end_time.isoformat()
+            "summary": {
+                "total_questions": total_preguntas,
+                "correct_answers": sum(a['is_correct'] for a in answers),
+                "score": participante_en_cuestionario.score,
+                "time_spent": f"{tiempo_total:.2f}s",
+                "time_limit": f"{time_limit}s"
+            },
+            "answers": [{
+                "answer_id": a.answer_id,
+                "is_correct": a.is_correct,
+                "question_id": a.question_id
+            } for a in new_answers]
         }
-
     @staticmethod
     def get_by_user_and_quiz(competition_quiz_id, participant_id):
         """

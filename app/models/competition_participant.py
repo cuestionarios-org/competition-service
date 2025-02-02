@@ -1,6 +1,5 @@
 from extensions import db
-from sqlalchemy.orm import relationship
-import datetime as dt
+from datetime import datetime, timezone
 
 class CompetitionParticipant(db.Model):
     """
@@ -12,8 +11,17 @@ class CompetitionParticipant(db.Model):
     competition_id = db.Column(db.Integer, db.ForeignKey('competitions.id'), nullable=False)  # Relación con Competitions
     participant_id = db.Column(db.Integer, nullable=False)  # ID del participante (de otro sistema/microservicio)
 
-    created_at = db.Column(db.DateTime, default=db.func.now())
-    updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
+    created_at = db.Column(
+        db.DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
+    updated_at = db.Column(
+        db.DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
 
     competition = db.relationship('Competition', back_populates='participants')
 

@@ -1,6 +1,7 @@
 from extensions import db
 from sqlalchemy.orm import validates, relationship
-import datetime as dt
+# import datetime as dt
+from datetime import datetime, timezone
 from app.utils.lib.pretty import pretty_print_dict
 from sqlalchemy.exc import SQLAlchemyError
 from app.models.competition_quiz import CompetitionQuiz
@@ -15,12 +16,19 @@ class Competition(db.Model):
     state = db.Column(db.String(50), nullable=False, default='preparacion')
     created_by = db.Column(db.Integer, nullable=False)
     modified_by = db.Column(db.Integer)
-    created_at = db.Column(db.DateTime, default=dt.datetime.now(dt.timezone.utc))
-    updated_at = db.Column(db.DateTime, default=dt.datetime.now(dt.timezone.utc), onupdate=dt.datetime.now(dt.timezone.utc))
-
-    # Fecha de inicio y finalización
-    start_date = db.Column(db.DateTime, nullable=False)
-    end_date = db.Column(db.DateTime, nullable=False)
+    created_at = db.Column(
+        db.DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
+    updated_at = db.Column(
+        db.DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
+    start_date = db.Column(db.DateTime(timezone=True), nullable=True)
+    end_date = db.Column(db.DateTime(timezone=True), nullable=True)
 
     # Límite de participantes (0 significa sin límite)
     participant_limit = db.Column(db.Integer, nullable=False, default=0)
@@ -57,6 +65,26 @@ class Competition(db.Model):
             raise ValueError("El límite de participantes no puede ser negativo.")
         return value
     
+    @validates('start_date', 'end_date')
+    def validate_dates(self, key, value):
+        if value is None:
+            return None  # Permite valores nulos si nullable=True
+        
+        # Convertir strings a datetime
+        if isinstance(value, str):
+            try:
+                value = datetime.fromisoformat(value)
+            except ValueError:
+                raise ValueError(f"Formato inválido para {key}. Usar ISO 8601")
+        
+        # Forzar UTC si no tiene zona horaria
+        if value.tzinfo is None:
+            value = value.replace(tzinfo=timezone.utc)
+        else:
+            value = value.astimezone(timezone.utc)
+        
+        return value
+
     # Métodos
     def add_quiz(self, quiz_id):
         """
@@ -138,6 +166,16 @@ class Competition(db.Model):
         return ""
 
     def to_dict(self):
+        def safe_date_isoformat(date):
+            if isinstance(date, datetime):
+                return date.isoformat()
+            elif isinstance(date, str):  # Si por error es string
+                try:
+                    return datetime.fromisoformat(date).isoformat()
+                except ValueError:
+                    return None
+            return None  # Para None u otros tipos
+
         return {
             "id": self.id,
             "title": self.title,
@@ -145,10 +183,10 @@ class Competition(db.Model):
             "state": self.state,
             "created_by": self.created_by,
             "modified_by": self.modified_by,
-            "created_at": self.created_at.isoformat() if self.created_at else None,
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
-            "start_date": self.start_date.isoformat() if self.start_date else None,
-            "end_date": self.end_date.isoformat() if self.end_date else None,
+            "created_at": safe_date_isoformat(self.created_at),
+            "updated_at": safe_date_isoformat(self.updated_at),
+            "start_date": safe_date_isoformat(self.start_date),
+            "end_date": safe_date_isoformat(self.end_date),
             "participant_limit": self.participant_limit,
             "currency_cost": self.currency_cost,
             "ticket_cost": self.ticket_cost,

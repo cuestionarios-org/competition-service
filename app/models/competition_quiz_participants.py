@@ -1,6 +1,6 @@
 from extensions import db
-from sqlalchemy.orm import relationship
-import datetime as dt
+from sqlalchemy.orm import validates
+from datetime import datetime, timezone
 
 class CompetitionQuizParticipants(db.Model):
     """
@@ -11,12 +11,21 @@ class CompetitionQuizParticipants(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     competition_quiz_id = db.Column(db.Integer, db.ForeignKey('competition_quizzes.id'), nullable=False)  # Relación con CompetitionQuizzes
     participant_id = db.Column(db.Integer, nullable=False)  # ID del participante (de otro sistema/microservicio)
+    score = db.Column(db.Integer, nullable=True, default=0)  # Puntaje obtenido en el cuestionario
     
-    start_time = db.Column(db.DateTime, nullable=True)  # Momento en el que el usuario inicia el cuestionario
-    end_time = db.Column(db.DateTime, nullable=True)  # Momento en el que el usuario finaliza el cuestionario
-
-    created_at = db.Column(db.DateTime, default=db.func.now())
-    updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
+    start_time = db.Column(db.DateTime(timezone=True), nullable=True)
+    end_time = db.Column(db.DateTime(timezone=True), nullable=True)
+    created_at = db.Column(
+        db.DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
+    updated_at = db.Column(
+        db.DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
 
     # Relación con CompetitionQuiz
     competition_quiz = db.relationship('CompetitionQuiz', back_populates='participants')
@@ -24,6 +33,12 @@ class CompetitionQuizParticipants(db.Model):
     __table_args__ = (
         db.UniqueConstraint('competition_quiz_id', 'participant_id', name='uq_competition_quiz_participant'),  # Evita inscripciones duplicadas
     )
+
+    # @validates('start_date', 'end_date')
+    # def validate_dates(self, key, value):
+    #     if key == 'start_date' and self.end_date and value > self.end_date:
+    #         raise ValueError("Start date must be before end date")
+    #     return value.replace(tzinfo=timezone.utc)  # Forzar UTC
 
     def __repr__(self):
         return f"<CompetitionQuizParticipants CompetitionQuiz {self.competition_quiz_id} - Participant {self.participant_id}>"

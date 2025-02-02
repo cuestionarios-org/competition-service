@@ -27,7 +27,6 @@ class CompetitionService:
         for field in required_fields:
             if field not in data:
                 raise BadRequest(f"Missing required field: {field}")
-
         competition = Competition(
             title=data['title'],
             description=data.get('description', ''),
@@ -39,6 +38,7 @@ class CompetitionService:
             ticket_cost=data.get('ticket_cost', 0),
             credit_cost=data.get('credit_cost', 0),
         )
+        print(competition)
 
         db.session.add(competition)
         db.session.flush()  # Obtener el ID de la competencia recién creada

@@ -1,5 +1,5 @@
 from extensions import db
-import datetime as dt
+from datetime import datetime, timezone
 
 class CompetitionQuizAnswer(db.Model):
     __tablename__ = 'competition_quiz_answers'
@@ -12,7 +12,14 @@ class CompetitionQuizAnswer(db.Model):
     )
     participant_id = db.Column(db.Integer, nullable=False)  # ID del participante (desde otro MS)
     answer_id = db.Column(db.Integer, nullable=False)  # ID de la respuesta del MS de quizzes
-    created_at = db.Column(db.DateTime, default=dt.datetime.now(dt.timezone.utc))
+
+    is_correct = db.Column(db.Boolean, nullable=False, default=False)
+    question_id = db.Column(db.Integer, nullable=True)
+    created_at = db.Column(
+        db.DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
 
     # Relación opcional para acceder al quiz (si es necesario)
     competition_quiz = db.relationship('CompetitionQuiz', back_populates='answers')

@@ -1,6 +1,6 @@
 from extensions import db
-from sqlalchemy.orm import relationship
-import datetime as dt
+from datetime import datetime, timezone
+
 
 class CompetitionQuiz(db.Model):
     """
@@ -12,12 +12,19 @@ class CompetitionQuiz(db.Model):
     competition_id = db.Column(db.Integer, db.ForeignKey('competitions.id'), nullable=False)  # Relación con Competitions
     quiz_id = db.Column(db.Integer, nullable=False)  # ID del quiz
     
-    start_time = db.Column(db.DateTime, nullable=False, default=db.func.now())  # Inicio del cuestionario en la competencia
-    end_time = db.Column(db.DateTime, nullable=False, default=db.func.now())  # Fin del cuestionario en la competencia
-
-    created_at = db.Column(db.DateTime, default=db.func.now())
-    updated_at = db.Column(db.DateTime, default=db.func.now(), onupdate=db.func.now())
-
+    start_time = db.Column(db.DateTime(timezone=True), nullable=True)
+    end_time = db.Column(db.DateTime(timezone=True), nullable=True)
+    created_at = db.Column(
+        db.DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
+    updated_at = db.Column(
+        db.DateTime(timezone=True),
+        default=lambda: datetime.now(timezone.utc),
+        onupdate=lambda: datetime.now(timezone.utc),
+        nullable=False
+    )
     # Relación con Competition
     competition = db.relationship('Competition', back_populates='quizzes')
     # Relación con CompetitionQuizParticipants
