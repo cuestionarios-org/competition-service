@@ -1,11 +1,12 @@
 from extensions import db
 from sqlalchemy.orm import validates, relationship
-# import datetime as dt
 from datetime import datetime, timezone
 from app.utils.lib.pretty import pretty_print_dict
 from sqlalchemy.exc import SQLAlchemyError
 from app.models.competition_quiz import CompetitionQuiz
 from app.models.competition_participant import CompetitionParticipant
+
+from app.utils.lib.formatting import safe_date_isoformat
 
 class Competition(db.Model):
     __tablename__ = 'competitions'
@@ -166,16 +167,7 @@ class Competition(db.Model):
         return ""
 
     def to_dict(self):
-        def safe_date_isoformat(date):
-            if isinstance(date, datetime):
-                return date.isoformat()
-            elif isinstance(date, str):  # Si por error es string
-                try:
-                    return datetime.fromisoformat(date).isoformat()
-                except ValueError:
-                    return None
-            return None  # Para None u otros tipos
-
+       
         return {
             "id": self.id,
             "title": self.title,

@@ -1,5 +1,6 @@
 from extensions import db
 from datetime import datetime, timezone
+from app.utils.lib.formatting import safe_date_isoformat
 
 
 class CompetitionQuiz(db.Model):
@@ -12,6 +13,13 @@ class CompetitionQuiz(db.Model):
     competition_id = db.Column(db.Integer, db.ForeignKey('competitions.id'), nullable=False)  # Relación con Competitions
     quiz_id = db.Column(db.Integer, nullable=False)  # ID del quiz
     
+    time_limit = db.Column(
+        db.Integer, 
+        nullable=True, 
+        default=0,  # 0 = sin límite de tiempo
+        comment="Duración máxima en segundos para completar el cuestionario"
+    )
+
     start_time = db.Column(db.DateTime(timezone=True), nullable=True)
     end_time = db.Column(db.DateTime(timezone=True), nullable=True)
     created_at = db.Column(
@@ -37,6 +45,7 @@ class CompetitionQuiz(db.Model):
     
     __table_args__ = (
         db.UniqueConstraint('competition_id', 'quiz_id', name='uq_competition_quiz'),  # Evita duplicados
+        db.CheckConstraint('time_limit >= 0', name='check_time_limit_positive'),
     )
 
     def __repr__(self):
@@ -47,8 +56,9 @@ class CompetitionQuiz(db.Model):
             "id": self.id,
             "competition_id": self.competition_id,
             "quiz_id": self.quiz_id,
-            "start_time": self.start_time.isoformat() if self.start_time else None,
-            "end_time": self.end_time.isoformat() if self.end_time else None,
-            "created_at": self.created_at.isoformat() if self.created_at else None,
-            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
+            "time_limit": self.time_limit,
+            "start_time": safe_date_isoformat(self.start_time),
+            "end_time": safe_date_isoformat(self.end_time),
+            "created_at": safe_date_isoformat(self.created_at),
+            "updated_at": safe_date_isoformat(self.updated_at),
         }
