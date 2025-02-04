@@ -19,6 +19,7 @@ config.pyc
 *.log
 tmp/
 *.tmp
+errors.log.*
 
 # Archivos de base de datos locales
 *.sqlite
