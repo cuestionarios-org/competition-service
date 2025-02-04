@@ -52,6 +52,11 @@ class CompetitionQuizParticipantService:
         if participante_en_cuestionario != None:
             raise BadRequest(f"Participant {participant_id} is already registered in quiz {competition_quiz_id} for this competition {competition_id}.")  
 
+        # validar ue la fecha actual este entre fecha inicio y final del cuestionario
+        ahora = dt.datetime.now(timezone.utc) 
+        if ahora < cuestionario_en_competencia.start_time or ahora > cuestionario_en_competencia.end_time:
+            raise BadRequest(f"Quiz {competition_quiz_id} is not available at this time.")
+        
         """
         TODO: 
         quizas validar el estado del cuestionario mas adelante
@@ -77,7 +82,7 @@ class CompetitionQuizParticipantService:
         }
         return response
     @staticmethod
-    def finish_quiz(competition_quiz_id, participant_id, answers, quiz):
+    def finish_quiz(competition_quiz_id, participant_id, answers):
         """
         Registra el tiempo de finalización y guarda las respuestas validadas con su corrección.
         """
@@ -109,7 +114,7 @@ class CompetitionQuizParticipantService:
             raise BadRequest("Quiz already completed.")
 
         # Validación de tiempo límite mejorada
-        time_limit = quiz.get("time_limit", 0)
+        time_limit = cuestionario_en_competencia.time_limit
         if time_limit > 0:
             time_start = participante_en_cuestionario.start_time
             tiempo_transcurrido = (time_finish - time_start).total_seconds()
@@ -156,23 +161,27 @@ class CompetitionQuizParticipantService:
             # Transacción atómica
             db.session.bulk_save_objects(new_answers)
             participante_en_cuestionario.end_time = time_finish
-            participante_en_cuestionario.score = sum(a['is_correct'] for a in answers)  # Si tienes campo score
+            
+            # Actualizar puntaje
+           
+            tiempo_total = (participante_en_cuestionario.end_time - participante_en_cuestionario.start_time).total_seconds()
+        
+            correctas = sum(a['is_correct'] for a in answers)
+            tiempo_no_utilizado = time_limit - tiempo_total
+            puntaje = correctas * tiempo_no_utilizado
+            participante_en_cuestionario.score = puntaje 
             db.session.commit()
 
         except SQLAlchemyError as e:
             db.session.rollback()
             raise BadRequest(f"Error de base de datos: {str(e)}")
 
-        # Estadísticas detalladas
-        total_preguntas = quiz.get('total_questions', len(answers))
-        tiempo_total = (participante_en_cuestionario.end_time - participante_en_cuestionario.start_time).total_seconds()
         
         return {
             "competition_id": competition_id,
             "participant_id": participant_id,
             "quiz_id": cuestionario_en_competencia.quiz_id,
             "summary": {
-                "total_questions": total_preguntas,
                 "correct_answers": sum(a['is_correct'] for a in answers),
                 "score": participante_en_cuestionario.score,
                 "time_spent": f"{tiempo_total:.2f}s",

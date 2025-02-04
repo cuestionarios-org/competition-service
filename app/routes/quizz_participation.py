@@ -29,15 +29,12 @@ def finish_quiz(competition_quiz_id, participant_id):
     data = request.get_json(silent=True)
     if not data or 'answers' not in data:
         return jsonify({"error": "Missing answers in request body"}), 400
-    if not data or 'quiz' not in data:
-        return jsonify({"error": "Missing data quiz in request body"}), 400
     
     try:
         result = CompetitionQuizParticipantService.finish_quiz(
             competition_quiz_id=competition_quiz_id,
             participant_id=participant_id,
-            answers=data['answers'],
-            quiz=data['quiz']
+            answers=data['answers']
         )
         return jsonify(result), 200
     except (BadRequest, NotFound) as e:
