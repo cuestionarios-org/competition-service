@@ -4,7 +4,7 @@ from werkzeug.exceptions import BadRequest, NotFound
 
 class CompetitionQuizService:
     @staticmethod
-    def add_quiz_to_competition(competition_id, quiz_id):
+    def add_quiz_to_competitionNOSEUSA(competition_id, quiz_id):
         """
         Asocia un quiz a una competencia.
         :param competition_id: ID de la competencia.
@@ -20,7 +20,7 @@ class CompetitionQuizService:
         return competition_quiz
 
     @staticmethod
-    def remove_quiz_from_competition(competition_id, quiz_id):
+    def remove_quiz_from_competitionNOSEUSA(competition_id, quiz_id):
         """
         Elimina un quiz de una competencia.
         :param competition_id: ID de la competencia.
