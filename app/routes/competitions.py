@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.services import CompetitionService, CompetitionQuizService, CompetitionParticipantService
+from app.services import CompetitionService, CompetitionParticipantService
 
 # Blueprint para las rutas de Competition
 competition_bp = Blueprint('competition', __name__)

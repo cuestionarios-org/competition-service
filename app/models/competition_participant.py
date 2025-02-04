@@ -11,6 +11,12 @@ class CompetitionParticipant(db.Model):
     competition_id = db.Column(db.Integer, db.ForeignKey('competitions.id'), nullable=False)  # Relación con Competitions
     participant_id = db.Column(db.Integer, nullable=False)  # ID del participante (de otro sistema/microservicio)
 
+    score = db.Column(
+        db.Integer, 
+        nullable=True, 
+        default=0,  # Puntaje inicial
+        comment="Puntaje acumulado del participante en la competencia."
+    )
     created_at = db.Column(
         db.DateTime(timezone=True),
         default=lambda: datetime.now(timezone.utc),
