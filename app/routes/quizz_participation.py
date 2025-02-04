@@ -1,5 +1,5 @@
 from flask import Blueprint, request, jsonify
-from app.services.competition_quiz_participant_service import CompetitionQuizParticipantService
+from app.services import CompetitionQuizParticipantService
 from werkzeug.exceptions import BadRequest, NotFound
 
 quiz_participation_bp = Blueprint('quiz', __name__)
