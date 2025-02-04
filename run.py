@@ -10,8 +10,7 @@ from app.routes.quizz_participation import quiz_participation_bp
 
 from app.utils.errors.handlers import register_error_handlers
 
-
-
+from scheduler import start_scheduler
 
 def create_app(config_name='development'):
     app = Flask(__name__)
@@ -49,6 +48,15 @@ def create_app(config_name='development'):
     # Registra manejadores de errores
     
     register_error_handlers(app)
+
+    # with app.app_context():
+    #     start_scheduler()  # Iniciar el scheduler
+
+    # Verifica que el scheduler solo se inicie una vez
+    if not hasattr(app, 'scheduler_started'):
+        with app.app_context():
+            start_scheduler(app)  # 🔹 PASAMOS LA APP
+            app.scheduler_started = True
     
     return app
 

@@ -20,6 +20,14 @@ class CompetitionQuiz(db.Model):
         comment="Duración máxima en segundos para completar el cuestionario"
     )
 
+    processed = db.Column(
+        db.Boolean,
+        default=False,
+        nullable=True,
+        index=True,  # Para búsquedas eficientes
+        comment="Indica si ya se procesaron los resultados"
+    )
+
     start_time = db.Column(db.DateTime(timezone=True), nullable=True)
     end_time = db.Column(db.DateTime(timezone=True), nullable=True)
     created_at = db.Column(

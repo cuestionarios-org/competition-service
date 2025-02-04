@@ -1,0 +1,1146 @@
+2025-01-28 17:25:41,217 - app.utils.errors.handlers - ERROR - Unhandled Exception: 415 Unsupported Media Type: Did not attempt to load JSON data because the request Content-Type was not 'application/json'.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/competitions.py", line 13, in create_competition
+    data = request.get_json()
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/wrappers/request.py", line 604, in get_json
+    return self.on_json_loading_failed(None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/wrappers.py", line 214, in on_json_loading_failed
+    return super().on_json_loading_failed(e)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/wrappers/request.py", line 647, in on_json_loading_failed
+    raise UnsupportedMediaType(
+werkzeug.exceptions.UnsupportedMediaType: 415 Unsupported Media Type: Did not attempt to load JSON data because the request Content-Type was not 'application/json'.
+2025-01-28 20:14:10,172 - app.utils.errors.handlers - ERROR - Unhandled Exception: 405 Method Not Allowed: The method is not allowed for the requested URL.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 891, in dispatch_request
+    self.raise_routing_exception(req)
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 500, in raise_routing_exception
+    raise request.routing_exception  # type: ignore[misc]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/ctx.py", line 362, in match_request
+    result = self.url_adapter.match(return_rule=True)  # type: ignore
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/routing/map.py", line 624, in match
+    raise MethodNotAllowed(valid_methods=list(e.have_match_for)) from None
+werkzeug.exceptions.MethodNotAllowed: 405 Method Not Allowed: The method is not allowed for the requested URL.
+2025-01-29 12:25:17,452 - app.utils.errors.handlers - ERROR - Unhandled Exception: (psycopg2.errors.UndefinedTable) relation "competition_quizzes_participants" does not exist
+LINE 2: FROM competition_quizzes_participants 
+             ^
+
+[SQL: SELECT competition_quizzes_participants.id AS competition_quizzes_participants_id, competition_quizzes_participants.competition_quiz_id AS competition_quizzes_participants_competition_quiz_id, competition_quizzes_participants.participant_id AS competition_quizzes_participants_participant_id, competition_quizzes_participants.start_time AS competition_quizzes_participants_start_time, competition_quizzes_participants.end_time AS competition_quizzes_participants_end_time, competition_quizzes_participants.created_at AS competition_quizzes_participants_created_at, competition_quizzes_participants.updated_at AS competition_quizzes_participants_updated_at 
+FROM competition_quizzes_participants 
+WHERE competition_quizzes_participants.competition_quiz_id = %(competition_quiz_id_1)s AND competition_quizzes_participants.participant_id = %(participant_id_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'competition_quiz_id_1': 21, 'participant_id_1': 1, 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 942, in do_execute
+    cursor.execute(statement, parameters)
+psycopg2.errors.UndefinedTable: relation "competition_quizzes_participants" does not exist
+LINE 2: FROM competition_quizzes_participants 
+             ^
+
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 8, in start_quiz
+    participant = CompetitionQuizParticipantService.start_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 34, in start_quiz
+    ).first()
+      ^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2754, in first
+    return self.limit(1)._iter().first()  # type: ignore
+           ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/sqlalchemy/orm/query.py", line 2853, in _iter
+    result: Union[ScalarResult[_T], Result[_T]] = self.session.execute(
+                                                  ^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2365, in execute
+    return self._execute_internal(
+           ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/sqlalchemy/orm/session.py", line 2251, in _execute_internal
+    result: Result[Any] = compile_state_cls.orm_execute_statement(
+                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/sqlalchemy/orm/context.py", line 305, in orm_execute_statement
+    result = conn.execute(
+             ^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1416, in execute
+    return meth(
+           ^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 515, in _execute_on_connection
+    return connection._execute_clauseelement(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1638, in _execute_clauseelement
+    ret = self._execute_context(
+          ^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1843, in _execute_context
+    return self._exec_single_context(
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1983, in _exec_single_context
+    self._handle_dbapi_exception(
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 2352, in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/sqlalchemy/engine/base.py", line 1964, in _exec_single_context
+    self.dialect.do_execute(
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/sqlalchemy/engine/default.py", line 942, in do_execute
+    cursor.execute(statement, parameters)
+sqlalchemy.exc.ProgrammingError: (psycopg2.errors.UndefinedTable) relation "competition_quizzes_participants" does not exist
+LINE 2: FROM competition_quizzes_participants 
+             ^
+
+[SQL: SELECT competition_quizzes_participants.id AS competition_quizzes_participants_id, competition_quizzes_participants.competition_quiz_id AS competition_quizzes_participants_competition_quiz_id, competition_quizzes_participants.participant_id AS competition_quizzes_participants_participant_id, competition_quizzes_participants.start_time AS competition_quizzes_participants_start_time, competition_quizzes_participants.end_time AS competition_quizzes_participants_end_time, competition_quizzes_participants.created_at AS competition_quizzes_participants_created_at, competition_quizzes_participants.updated_at AS competition_quizzes_participants_updated_at 
+FROM competition_quizzes_participants 
+WHERE competition_quizzes_participants.competition_quiz_id = %(competition_quiz_id_1)s AND competition_quizzes_participants.participant_id = %(participant_id_1)s 
+ LIMIT %(param_1)s]
+[parameters: {'competition_quiz_id_1': 21, 'participant_id_1': 1, 'param_1': 1}]
+(Background on this error at: https://sqlalche.me/e/20/f405)
+2025-01-29 16:40:43,163 - app.utils.errors.handlers - ERROR - Unhandled Exception: 'CompetitionParticipant' object has no attribute 'start_time'
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 9, in start_quiz
+    participant = CompetitionQuizParticipantService.start_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 45, in start_quiz
+    if participante_en_competencia.start_time:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'CompetitionParticipant' object has no attribute 'start_time'
+2025-01-29 16:43:51,910 - app.utils.errors.handlers - ERROR - Unhandled Exception: 'NoneType' object has no attribute 'start_time'
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 9, in start_quiz
+    participant = CompetitionQuizParticipantService.start_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 50, in start_quiz
+    if participante_en_cuestionario.start_time:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'start_time'
+2025-01-29 16:44:07,575 - app.utils.errors.handlers - ERROR - Unhandled Exception: 'NoneType' object has no attribute 'start_time'
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 9, in start_quiz
+    participant = CompetitionQuizParticipantService.start_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 50, in start_quiz
+    if participante_en_cuestionario.start_time:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'start_time'
+2025-01-29 16:46:32,251 - app.utils.errors.handlers - ERROR - Unhandled Exception: 'NoneType' object has no attribute 'start_time'
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 9, in start_quiz
+    participant = CompetitionQuizParticipantService.start_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 50, in start_quiz
+    if participante_en_cuestionario.start_time:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'start_time'
+2025-01-29 16:47:06,896 - app.utils.errors.handlers - ERROR - Unhandled Exception: 400 Bad Request: Participant 1 is already registered in quiz 23 for this competition 6.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 9, in start_quiz
+    participant = CompetitionQuizParticipantService.start_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 48, in start_quiz
+    raise BadRequest(f"Participant {participant_id} is already registered in quiz {competition_quiz_id} for this competition {competition_id}.")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Participant 1 is already registered in quiz 23 for this competition 6.
+2025-01-29 16:50:41,266 - app.utils.errors.handlers - ERROR - Unhandled Exception: 400 Bad Request: Participant 1 is already registered in quiz 23 for this competition 6.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 9, in start_quiz
+    participant = CompetitionQuizParticipantService.start_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 48, in start_quiz
+    raise BadRequest(f"Participant {participant_id} is already registered in quiz {competition_quiz_id} for this competition {competition_id}.")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Participant 1 is already registered in quiz 23 for this competition 6.
+2025-01-29 16:51:06,519 - app.utils.errors.handlers - ERROR - Unhandled Exception: 400 Bad Request: Participant 2 is already registered in quiz 23 for this competition 6.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 9, in start_quiz
+    participant = CompetitionQuizParticipantService.start_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 48, in start_quiz
+    raise BadRequest(f"Participant {participant_id} is already registered in quiz {competition_quiz_id} for this competition {competition_id}.")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Participant 2 is already registered in quiz 23 for this competition 6.
+2025-01-29 16:53:44,769 - app.utils.errors.handlers - ERROR - Unhandled Exception: 400 Bad Request: Participant 2 is already registered in quiz 22 for this competition 6.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 9, in start_quiz
+    participant = CompetitionQuizParticipantService.start_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 48, in start_quiz
+    raise BadRequest(f"Participant {participant_id} is already registered in quiz {competition_quiz_id} for this competition {competition_id}.")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Participant 2 is already registered in quiz 22 for this competition 6.
+2025-01-29 16:54:45,012 - app.utils.errors.handlers - ERROR - Unhandled Exception: 400 Bad Request: Participant 2 is already registered in quiz 21 for this competition 6.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 9, in start_quiz
+    participant = CompetitionQuizParticipantService.start_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 48, in start_quiz
+    raise BadRequest(f"Participant {participant_id} is already registered in quiz {competition_quiz_id} for this competition {competition_id}.")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Participant 2 is already registered in quiz 21 for this competition 6.
+2025-01-29 17:00:35,732 - app.utils.errors.handlers - ERROR - Unhandled Exception: 'dict' object has no attribute 'to_dict'
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 10, in start_quiz
+    return jsonify(participant.to_dict()), 200
+                   ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'to_dict'
+2025-01-29 17:01:59,448 - app.utils.errors.handlers - ERROR - Unhandled Exception: 400 Bad Request: Participant 4 is already registered in quiz 22 for this competition 6.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 9, in start_quiz
+    participant = CompetitionQuizParticipantService.start_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 48, in start_quiz
+    raise BadRequest(f"Participant {participant_id} is already registered in quiz {competition_quiz_id} for this competition {competition_id}.")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Participant 4 is already registered in quiz 22 for this competition 6.
+2025-01-29 17:02:05,914 - app.utils.errors.handlers - ERROR - Unhandled Exception: 'dict' object has no attribute 'to_dict'
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 10, in start_quiz
+    return jsonify(participant.to_dict()), 200
+                   ^^^^^^^^^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'to_dict'
+2025-01-29 17:02:56,327 - app.utils.errors.handlers - ERROR - Unhandled Exception: 400 Bad Request: Participant 4 is already registered in quiz 23 for this competition 6.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 9, in start_quiz
+    participant = CompetitionQuizParticipantService.start_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 48, in start_quiz
+    raise BadRequest(f"Participant {participant_id} is already registered in quiz {competition_quiz_id} for this competition {competition_id}.")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Participant 4 is already registered in quiz 23 for this competition 6.
+2025-01-29 18:48:28,578 - app.utils.errors.handlers - ERROR - Unhandled Exception: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 14, in finish_quiz
+    participant = CompetitionQuizParticipantService.finish_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 106, in finish_quiz
+    raise BadRequest(f"Participant {participant_id} has already finished quiz {competition_quiz_id} for this competition {competition_id}.")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+2025-01-29 18:48:30,641 - app.utils.errors.handlers - ERROR - Unhandled Exception: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 14, in finish_quiz
+    participant = CompetitionQuizParticipantService.finish_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 106, in finish_quiz
+    raise BadRequest(f"Participant {participant_id} has already finished quiz {competition_quiz_id} for this competition {competition_id}.")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+2025-01-29 18:48:31,159 - app.utils.errors.handlers - ERROR - Unhandled Exception: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 14, in finish_quiz
+    participant = CompetitionQuizParticipantService.finish_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 106, in finish_quiz
+    raise BadRequest(f"Participant {participant_id} has already finished quiz {competition_quiz_id} for this competition {competition_id}.")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+2025-01-29 18:48:31,542 - app.utils.errors.handlers - ERROR - Unhandled Exception: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 14, in finish_quiz
+    participant = CompetitionQuizParticipantService.finish_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 106, in finish_quiz
+    raise BadRequest(f"Participant {participant_id} has already finished quiz {competition_quiz_id} for this competition {competition_id}.")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+2025-01-29 18:48:34,413 - app.utils.errors.handlers - ERROR - Unhandled Exception: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 14, in finish_quiz
+    participant = CompetitionQuizParticipantService.finish_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 106, in finish_quiz
+    raise BadRequest(f"Participant {participant_id} has already finished quiz {competition_quiz_id} for this competition {competition_id}.")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+2025-01-29 18:48:34,623 - app.utils.errors.handlers - ERROR - Unhandled Exception: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 14, in finish_quiz
+    participant = CompetitionQuizParticipantService.finish_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 106, in finish_quiz
+    raise BadRequest(f"Participant {participant_id} has already finished quiz {competition_quiz_id} for this competition {competition_id}.")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+2025-01-29 18:48:34,790 - app.utils.errors.handlers - ERROR - Unhandled Exception: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 14, in finish_quiz
+    participant = CompetitionQuizParticipantService.finish_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 106, in finish_quiz
+    raise BadRequest(f"Participant {participant_id} has already finished quiz {competition_quiz_id} for this competition {competition_id}.")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+2025-01-29 18:48:34,973 - app.utils.errors.handlers - ERROR - Unhandled Exception: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 14, in finish_quiz
+    participant = CompetitionQuizParticipantService.finish_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 106, in finish_quiz
+    raise BadRequest(f"Participant {participant_id} has already finished quiz {competition_quiz_id} for this competition {competition_id}.")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+2025-01-29 18:48:35,150 - app.utils.errors.handlers - ERROR - Unhandled Exception: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 14, in finish_quiz
+    participant = CompetitionQuizParticipantService.finish_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 106, in finish_quiz
+    raise BadRequest(f"Participant {participant_id} has already finished quiz {competition_quiz_id} for this competition {competition_id}.")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+2025-01-29 18:48:35,342 - app.utils.errors.handlers - ERROR - Unhandled Exception: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 14, in finish_quiz
+    participant = CompetitionQuizParticipantService.finish_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 106, in finish_quiz
+    raise BadRequest(f"Participant {participant_id} has already finished quiz {competition_quiz_id} for this competition {competition_id}.")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+2025-01-29 18:48:35,493 - app.utils.errors.handlers - ERROR - Unhandled Exception: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 14, in finish_quiz
+    participant = CompetitionQuizParticipantService.finish_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 106, in finish_quiz
+    raise BadRequest(f"Participant {participant_id} has already finished quiz {competition_quiz_id} for this competition {competition_id}.")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+2025-01-29 18:48:35,672 - app.utils.errors.handlers - ERROR - Unhandled Exception: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 14, in finish_quiz
+    participant = CompetitionQuizParticipantService.finish_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 106, in finish_quiz
+    raise BadRequest(f"Participant {participant_id} has already finished quiz {competition_quiz_id} for this competition {competition_id}.")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+2025-01-29 18:48:35,860 - app.utils.errors.handlers - ERROR - Unhandled Exception: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 14, in finish_quiz
+    participant = CompetitionQuizParticipantService.finish_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 106, in finish_quiz
+    raise BadRequest(f"Participant {participant_id} has already finished quiz {competition_quiz_id} for this competition {competition_id}.")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+2025-01-29 18:54:51,634 - app.utils.errors.handlers - ERROR - Unhandled Exception: type object 'CompetitionQuizParticipantService' has no attribute 'CompetitionQuizParticipantService'
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 19, in get_complete_quiz_by_user
+    participant = CompetitionQuizParticipantService.CompetitionQuizParticipantService(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'CompetitionQuizParticipantService' has no attribute 'CompetitionQuizParticipantService'
+2025-01-29 18:55:36,422 - app.utils.errors.handlers - ERROR - Unhandled Exception: 405 Method Not Allowed: The method is not allowed for the requested URL.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 891, in dispatch_request
+    self.raise_routing_exception(req)
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 500, in raise_routing_exception
+    raise request.routing_exception  # type: ignore[misc]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/ctx.py", line 362, in match_request
+    result = self.url_adapter.match(return_rule=True)  # type: ignore
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/routing/map.py", line 624, in match
+    raise MethodNotAllowed(valid_methods=list(e.have_match_for)) from None
+werkzeug.exceptions.MethodNotAllowed: 405 Method Not Allowed: The method is not allowed for the requested URL.
+2025-01-29 18:55:45,293 - app.utils.errors.handlers - ERROR - Unhandled Exception: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 14, in finish_quiz
+    participant = CompetitionQuizParticipantService.finish_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 106, in finish_quiz
+    raise BadRequest(f"Participant {participant_id} has already finished quiz {competition_quiz_id} for this competition {competition_id}.")
+werkzeug.exceptions.BadRequest: 400 Bad Request: Participant 1 has already finished quiz 21 for this competition 6.
+2025-01-29 18:56:22,752 - app.utils.errors.handlers - ERROR - Unhandled Exception: type object 'CompetitionQuizParticipantService' has no attribute 'CompetitionQuizParticipantService'
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 19, in get_complete_quiz_by_user
+    participant = CompetitionQuizParticipantService.CompetitionQuizParticipantService(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: type object 'CompetitionQuizParticipantService' has no attribute 'CompetitionQuizParticipantService'
+2025-01-30 08:54:59,394 - app.utils.errors.handlers - ERROR - Unhandled Exception: 415 Unsupported Media Type: Did not attempt to load JSON data because the request Content-Type was not 'application/json'.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 17, in finish_quiz
+    data = request.get_json()
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/wrappers/request.py", line 604, in get_json
+    return self.on_json_loading_failed(None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/wrappers.py", line 214, in on_json_loading_failed
+    return super().on_json_loading_failed(e)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/wrappers/request.py", line 647, in on_json_loading_failed
+    raise UnsupportedMediaType(
+werkzeug.exceptions.UnsupportedMediaType: 415 Unsupported Media Type: Did not attempt to load JSON data because the request Content-Type was not 'application/json'.
+2025-01-30 08:57:44,962 - app.utils.errors.handlers - ERROR - Unhandled Exception: 415 Unsupported Media Type: Did not attempt to load JSON data because the request Content-Type was not 'application/json'.
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 17, in finish_quiz
+    data = request.get_json() or {}
+           ^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/wrappers/request.py", line 604, in get_json
+    return self.on_json_loading_failed(None)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/wrappers.py", line 214, in on_json_loading_failed
+    return super().on_json_loading_failed(e)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/wrappers/request.py", line 647, in on_json_loading_failed
+    raise UnsupportedMediaType(
+werkzeug.exceptions.UnsupportedMediaType: 415 Unsupported Media Type: Did not attempt to load JSON data because the request Content-Type was not 'application/json'.
+2025-01-30 09:29:33,156 - app.utils.errors.handlers - ERROR - Unhandled Exception: 'dict' object has no attribute 'time_limit'
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 25, in finish_quiz
+    result = CompetitionQuizParticipantService.finish_quiz(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 110, in finish_quiz
+    time_limit = quiz.time_limit or 0
+                 ^^^^^^^^^^^^^^^
+AttributeError: 'dict' object has no attribute 'time_limit'
+2025-01-30 09:30:52,037 - app.utils.errors.handlers - ERROR - Unhandled Exception: Neither 'BinaryExpression' object nor 'Comparator' object has an attribute 'total_seconds'
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 1498, in __getattr__
+    return getattr(self.comparator, key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Comparator' object has no attribute 'total_seconds'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 25, in finish_quiz
+    result = CompetitionQuizParticipantService.finish_quiz(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 115, in finish_quiz
+    if (time_finish - time_start).total_seconds() > time_limit:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 1500, in __getattr__
+    raise AttributeError(
+AttributeError: Neither 'BinaryExpression' object nor 'Comparator' object has an attribute 'total_seconds'
+2025-01-30 09:37:58,409 - app.utils.errors.handlers - ERROR - Unhandled Exception: module 'datetime' has no attribute 'now'
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 25, in finish_quiz
+    result = CompetitionQuizParticipantService.finish_quiz(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 116, in finish_quiz
+    xxxx = dt.now()
+           ^^^^^^
+AttributeError: module 'datetime' has no attribute 'now'
+2025-01-30 09:39:40,990 - app.utils.errors.handlers - ERROR - Unhandled Exception: Neither 'BinaryExpression' object nor 'Comparator' object has an attribute 'total_seconds'
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 1498, in __getattr__
+    return getattr(self.comparator, key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Comparator' object has no attribute 'total_seconds'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 25, in finish_quiz
+    result = CompetitionQuizParticipantService.finish_quiz(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 118, in finish_quiz
+    if (time_finish - time_start).total_seconds() > time_limit:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 1500, in __getattr__
+    raise AttributeError(
+AttributeError: Neither 'BinaryExpression' object nor 'Comparator' object has an attribute 'total_seconds'
+2025-01-30 09:40:27,199 - app.utils.errors.handlers - ERROR - Unhandled Exception: Neither 'BinaryExpression' object nor 'Comparator' object has an attribute 'total_seconds'
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 1498, in __getattr__
+    return getattr(self.comparator, key)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'Comparator' object has no attribute 'total_seconds'
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 25, in finish_quiz
+    result = CompetitionQuizParticipantService.finish_quiz(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 118, in finish_quiz
+    if (time_finish - time_start).total_seconds() > time_limit:
+       ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/sqlalchemy/sql/elements.py", line 1500, in __getattr__
+    raise AttributeError(
+AttributeError: Neither 'BinaryExpression' object nor 'Comparator' object has an attribute 'total_seconds'
+2025-01-30 09:52:46,569 - app.utils.errors.handlers - ERROR - Unhandled Exception: type object 'datetime.datetime' has no attribute 'datetime'
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 25, in finish_quiz
+    result = CompetitionQuizParticipantService.finish_quiz(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 79, in finish_quiz
+    time_finish = dt.datetime.now()
+          ^^^^^^^^^^^
+AttributeError: type object 'datetime.datetime' has no attribute 'datetime'
+2025-01-30 10:01:04,283 - app.utils.errors.handlers - ERROR - Unhandled Exception: can't subtract offset-naive and offset-aware datetimes
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 25, in finish_quiz
+    result = CompetitionQuizParticipantService.finish_quiz(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 119, in finish_quiz
+    time_total_attempt = (time_finish - time_start).total_seconds()
+                          ~~~~~~~~~~~~^~~~~~~~~~~~
+TypeError: can't subtract offset-naive and offset-aware datetimes
+2025-01-30 10:02:58,665 - app.utils.errors.handlers - ERROR - Unhandled Exception: can't subtract offset-naive and offset-aware datetimes
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 25, in finish_quiz
+    result = CompetitionQuizParticipantService.finish_quiz(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 119, in finish_quiz
+    time_total_attempt = (time_finish - time_start).total_seconds()
+                          ~~~~~~~~~~~~^~~~~~~~~~~~
+TypeError: can't subtract offset-naive and offset-aware datetimes
+2025-01-31 16:55:02,483 - flask_migrate - ERROR - Error: Path doesn't exist: '/home/fom/proyectos/cuestionarios/competitions-service/migrations'.  Please use the 'init' command to create a new scripts folder.
+2025-02-02 15:56:04,519 - flask_migrate - ERROR - Error: Directory migrations already exists and is not empty
+2025-02-03 21:50:22,849 - app.utils.errors.handlers - ERROR - Unhandled Exception: 'NoneType' object has no attribute 'competition_id'
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 10, in start_quiz
+    participant = CompetitionQuizParticipantService.start_quiz(competition_quiz_id, participant_id)
+                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 42, in start_quiz
+    competition_id = cuestionario_en_competencia.competition_id
+                     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'competition_id'
+2025-02-03 21:57:51,311 - app.utils.errors.handlers - ERROR - Unhandled Exception: 'quiz'
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 38, in finish_quiz
+    quiz=data['quiz']
+         ~~~~^^^^^^^^
+KeyError: 'quiz'
+2025-02-03 22:12:57,110 - app.utils.errors.handlers - ERROR - Unhandled Exception: cannot access local variable 'tiempo_total' where it is not associated with a value
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 917, in full_dispatch_request
+    rv = self.dispatch_request()
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/flask/app.py", line 902, in dispatch_request
+    return self.ensure_sync(self.view_functions[rule.endpoint])(**view_args)  # type: ignore[no-any-return]
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/routes/quizz_participation.py", line 34, in finish_quiz
+    result = CompetitionQuizParticipantService.finish_quiz(
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/app/services/competition_quiz_participant_service.py", line 167, in finish_quiz
+    tiempo_no_utilizado = time_limit - tiempo_total
+                                       ^^^^^^^^^^^^
+UnboundLocalError: cannot access local variable 'tiempo_total' where it is not associated with a value
+2025-02-04 17:12:20,409 - apscheduler.executors.default - ERROR - Job "check_pending_quizzes (trigger: interval[0:01:00], next run at: 2025-02-04 17:13:20 -03)" raised an exception
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/apscheduler/executors/base.py", line 131, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/scheduler.py", line 10, in check_pending_quizzes
+    with current_app.app_context():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 318, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-04 17:12:21,163 - apscheduler.executors.default - ERROR - Job "check_pending_quizzes (trigger: interval[0:01:00], next run at: 2025-02-04 17:13:21 -03)" raised an exception
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/apscheduler/executors/base.py", line 131, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/scheduler.py", line 10, in check_pending_quizzes
+    with current_app.app_context():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 318, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-04 17:13:20,408 - apscheduler.executors.default - ERROR - Job "check_pending_quizzes (trigger: interval[0:01:00], next run at: 2025-02-04 17:14:20 -03)" raised an exception
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/apscheduler/executors/base.py", line 131, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/scheduler.py", line 10, in check_pending_quizzes
+    with current_app.app_context():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 318, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-04 17:13:21,162 - apscheduler.executors.default - ERROR - Job "check_pending_quizzes (trigger: interval[0:01:00], next run at: 2025-02-04 17:14:21 -03)" raised an exception
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/apscheduler/executors/base.py", line 131, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/scheduler.py", line 10, in check_pending_quizzes
+    with current_app.app_context():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 318, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-04 17:14:20,408 - apscheduler.executors.default - ERROR - Job "check_pending_quizzes (trigger: interval[0:01:00], next run at: 2025-02-04 17:15:20 -03)" raised an exception
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/apscheduler/executors/base.py", line 131, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/scheduler.py", line 10, in check_pending_quizzes
+    with current_app.app_context():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 318, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-04 17:14:24,532 - apscheduler.executors.default - ERROR - Job "check_pending_quizzes (trigger: interval[0:01:00], next run at: 2025-02-04 17:15:24 -03)" raised an exception
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/apscheduler/executors/base.py", line 131, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/scheduler.py", line 10, in check_pending_quizzes
+    with current_app.app_context():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 318, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-04 17:15:20,408 - apscheduler.executors.default - ERROR - Job "check_pending_quizzes (trigger: interval[0:01:00], next run at: 2025-02-04 17:16:20 -03)" raised an exception
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/apscheduler/executors/base.py", line 131, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/scheduler.py", line 10, in check_pending_quizzes
+    with current_app.app_context():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 318, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-04 17:15:24,530 - apscheduler.executors.default - ERROR - Job "check_pending_quizzes (trigger: interval[0:01:00], next run at: 2025-02-04 17:16:24 -03)" raised an exception
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/apscheduler/executors/base.py", line 131, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/scheduler.py", line 10, in check_pending_quizzes
+    with current_app.app_context():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 318, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-04 17:16:20,409 - apscheduler.executors.default - ERROR - Job "check_pending_quizzes (trigger: interval[0:01:00], next run at: 2025-02-04 17:17:20 -03)" raised an exception
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/apscheduler/executors/base.py", line 131, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/scheduler.py", line 10, in check_pending_quizzes
+    with current_app.app_context():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 318, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-04 17:16:24,531 - apscheduler.executors.default - ERROR - Job "check_pending_quizzes (trigger: interval[0:01:00], next run at: 2025-02-04 17:17:24 -03)" raised an exception
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/apscheduler/executors/base.py", line 131, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/scheduler.py", line 10, in check_pending_quizzes
+    with current_app.app_context():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 318, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-04 17:17:20,408 - apscheduler.executors.default - ERROR - Job "check_pending_quizzes (trigger: interval[0:01:00], next run at: 2025-02-04 17:18:20 -03)" raised an exception
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/apscheduler/executors/base.py", line 131, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/scheduler.py", line 10, in check_pending_quizzes
+    with current_app.app_context():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 318, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-04 17:17:24,531 - apscheduler.executors.default - ERROR - Job "check_pending_quizzes (trigger: interval[0:01:00], next run at: 2025-02-04 17:18:24 -03)" raised an exception
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/apscheduler/executors/base.py", line 131, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/scheduler.py", line 10, in check_pending_quizzes
+    with current_app.app_context():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 318, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-04 17:18:20,408 - apscheduler.executors.default - ERROR - Job "check_pending_quizzes (trigger: interval[0:01:00], next run at: 2025-02-04 17:19:20 -03)" raised an exception
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/apscheduler/executors/base.py", line 131, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/scheduler.py", line 10, in check_pending_quizzes
+    with current_app.app_context():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 318, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-04 17:18:24,531 - apscheduler.executors.default - ERROR - Job "check_pending_quizzes (trigger: interval[0:01:00], next run at: 2025-02-04 17:19:24 -03)" raised an exception
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/apscheduler/executors/base.py", line 131, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/scheduler.py", line 10, in check_pending_quizzes
+    with current_app.app_context():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 318, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-04 17:19:20,408 - apscheduler.executors.default - ERROR - Job "check_pending_quizzes (trigger: interval[0:01:00], next run at: 2025-02-04 17:20:20 -03)" raised an exception
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/apscheduler/executors/base.py", line 131, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/scheduler.py", line 10, in check_pending_quizzes
+    with current_app.app_context():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 318, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-04 17:19:57,510 - apscheduler.executors.default - ERROR - Job "check_pending_quizzes (trigger: interval[0:01:00], next run at: 2025-02-04 17:20:57 -03)" raised an exception
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/apscheduler/executors/base.py", line 131, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/scheduler.py", line 10, in check_pending_quizzes
+    with current_app.app_context():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 318, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-04 17:20:20,409 - apscheduler.executors.default - ERROR - Job "check_pending_quizzes (trigger: interval[0:01:00], next run at: 2025-02-04 17:21:20 -03)" raised an exception
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/apscheduler/executors/base.py", line 131, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/scheduler.py", line 10, in check_pending_quizzes
+    with current_app.app_context():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 318, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-04 17:21:14,630 - apscheduler.executors.default - ERROR - Job "check_pending_quizzes (trigger: interval[0:01:00], next run at: 2025-02-04 17:22:14 -03)" raised an exception
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/apscheduler/executors/base.py", line 131, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/scheduler.py", line 10, in check_pending_quizzes
+    with current_app.app_context():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 318, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-04 17:21:20,407 - apscheduler.executors.default - ERROR - Job "check_pending_quizzes (trigger: interval[0:01:00], next run at: 2025-02-04 17:22:20 -03)" raised an exception
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/apscheduler/executors/base.py", line 131, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/scheduler.py", line 10, in check_pending_quizzes
+    with current_app.app_context():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 318, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-04 17:22:14,629 - apscheduler.executors.default - ERROR - Job "check_pending_quizzes (trigger: interval[0:01:00], next run at: 2025-02-04 17:23:14 -03)" raised an exception
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/apscheduler/executors/base.py", line 131, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/scheduler.py", line 10, in check_pending_quizzes
+    with current_app.app_context():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 318, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.
+2025-02-04 17:22:20,407 - apscheduler.executors.default - ERROR - Job "check_pending_quizzes (trigger: interval[0:01:00], next run at: 2025-02-04 17:23:20 -03)" raised an exception
+Traceback (most recent call last):
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/apscheduler/executors/base.py", line 131, in run_job
+    retval = job.func(*job.args, **job.kwargs)
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/scheduler.py", line 10, in check_pending_quizzes
+    with current_app.app_context():
+         ^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 318, in __get__
+    obj = instance._get_current_object()
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/home/fom/proyectos/cuestionarios/competitions-service/env/lib/python3.12/site-packages/werkzeug/local.py", line 519, in _get_current_object
+    raise RuntimeError(unbound_message) from None
+RuntimeError: Working outside of application context.
+
+This typically means that you attempted to use functionality that needed
+the current application. To solve this, set up an application context
+with app.app_context(). See the documentation for more information.

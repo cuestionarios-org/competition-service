@@ -34,12 +34,6 @@ class CompetitionQuizParticipants(db.Model):
         db.UniqueConstraint('competition_quiz_id', 'participant_id', name='uq_competition_quiz_participant'),  # Evita inscripciones duplicadas
     )
 
-    # @validates('start_date', 'end_date')
-    # def validate_dates(self, key, value):
-    #     if key == 'start_date' and self.end_date and value > self.end_date:
-    #         raise ValueError("Start date must be before end date")
-    #     return value.replace(tzinfo=timezone.utc)  # Forzar UTC
-
     def __repr__(self):
         return f"<CompetitionQuizParticipants CompetitionQuiz {self.competition_quiz_id} - Participant {self.participant_id}>"
     
