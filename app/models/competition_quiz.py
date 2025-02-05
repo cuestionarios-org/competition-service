@@ -1,7 +1,13 @@
 from extensions import db
 from datetime import datetime, timezone
 from app.utils.lib.formatting import safe_date_isoformat
+from sqlalchemy.orm import validates
+import enum
 
+class CompetitionQuizStatus(enum.Enum):
+    ACTIVO = "activo"
+    COMPUTABLE = "computable"
+    NO_COMPUTABLE = "no_computable"
 
 class CompetitionQuiz(db.Model):
     """
@@ -26,6 +32,13 @@ class CompetitionQuiz(db.Model):
         nullable=True,
         index=True,  # Para búsquedas eficientes
         comment="Indica si ya se procesaron los resultados"
+    )
+
+    status = db.Column(
+        db.String(50), 
+        nullable=False, 
+        default=CompetitionQuizStatus.ACTIVO, 
+        comment="Estado del cuestionario dentro de la competencia"
     )
 
     start_time = db.Column(db.DateTime(timezone=True), nullable=True)
@@ -56,6 +69,32 @@ class CompetitionQuiz(db.Model):
         db.CheckConstraint('time_limit >= 0', name='check_time_limit_positive'),
     )
 
+    # Validaciones
+    @validates('status')
+    def validate_status(self, key, value):
+        """
+        Validar que el estado proporcionado es válido.
+        """
+        if value not in CompetitionQuizStatus:
+            raise ValueError(f"El estado '{value}' no es válido.")
+        return value
+
+    # Métodos
+
+    def set_status(self, new_status):
+        """
+        Cambiar el estado de la competencia considerando las transiciones válidas.
+        """
+        valid_transitions = {
+            CompetitionQuizStatus.ACTIVO: [CompetitionQuizStatus.COMPUTABLE],
+            CompetitionQuizStatus.COMPUTABLE: [CompetitionQuizStatus.NO_COMPUTABLE],
+            CompetitionQuizStatus.NO_COMPUTABLE: []  # No puede cambiar a otro estado
+        }
+
+        if new_status not in valid_transitions.get(self.status, []):
+            raise ValueError(f"No se puede cambiar el estado de {self.status.value} a {new_status.value}.")
+        
+        self.status = new_status
     def __repr__(self):
         return f"<CompetitionQuiz Competition {self.competition_id} - Quiz {self.quiz_id}>"
     
@@ -65,6 +104,7 @@ class CompetitionQuiz(db.Model):
             "competition_id": self.competition_id,
             "quiz_id": self.quiz_id,
             "time_limit": self.time_limit,
+            "status": self.status.value,
             "start_time": safe_date_isoformat(self.start_time),
             "end_time": safe_date_isoformat(self.end_time),
             "created_at": safe_date_isoformat(self.created_at),

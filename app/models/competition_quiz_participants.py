@@ -11,8 +11,10 @@ class CompetitionQuizParticipants(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     competition_quiz_id = db.Column(db.Integer, db.ForeignKey('competition_quizzes.id'), nullable=False)  # Relación con CompetitionQuizzes
     participant_id = db.Column(db.Integer, nullable=False)  # ID del participante (de otro sistema/microservicio)
-    score = db.Column(db.Integer, nullable=True, default=0)  # Puntaje obtenido en el cuestionario
     
+    score = db.Column(db.Integer, nullable=True, default=0)  # Puntaje obtenido en el cuestionario
+    score_competition = db.Column(db.Integer, nullable=True, default=0) # Puntaje para la competencia
+
     start_time = db.Column(db.DateTime(timezone=True), nullable=True)
     end_time = db.Column(db.DateTime(timezone=True), nullable=True)
     created_at = db.Column(
