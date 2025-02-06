@@ -1,7 +1,7 @@
-from sqlalchemy import select, and_, update, bindparam
+from sqlalchemy import select, func
 from sqlalchemy.orm import load_only
 from extensions import db
-from app.models import CompetitionQuiz, CompetitionQuizParticipants
+from app.models import CompetitionQuiz, CompetitionQuizParticipants, CompetitionParticipant
 from datetime import datetime, timezone
 from app.utils.lib.constants import CompetitionQuizStatus
 
@@ -13,7 +13,6 @@ class CompetitionQuizService:
         Devuelve True si el procesamiento fue exitoso.
         """
         try:
-            # 🔹 Bloquear y recargar el registro para evitar race conditions
             locked_quiz = db.session.execute(
                 select(CompetitionQuiz)
                 .where(
@@ -30,22 +29,22 @@ class CompetitionQuizService:
 
             print(f"🟢 Iniciando procesamiento quiz {locked_quiz.id}")
 
-            # 🔹 Calcular resultados del quiz
             CompetitionQuizService._calculate_results(locked_quiz)
-
-            # 🔹 Marcar como COMPUTABLE
             locked_quiz.set_status(CompetitionQuizStatus.COMPUTABLE)
             db.session.add(locked_quiz)
 
-            # 🔹 Verificar límite de quizzes COMPUTABLES (máximo 5)
+            # 🔹 Controlar que no haya más de X quizzes COMPUTABLES
             CompetitionQuizService._enforce_computable_limit(locked_quiz.competition_id)
+
+            # 🔹 Recalcular puntajes de la competencia
+            CompetitionQuizService._update_competition_scores(locked_quiz.competition_id)
 
             db.session.commit()  # 🔥 Un solo commit para todo
 
             return True  
 
         except Exception as e:
-            db.session.rollback()  # Asegurar rollback en cualquier error
+            db.session.rollback()  
             print(f"🔴 Error crítico procesando quiz {competition_quiz.id}: {str(e)}")
             return False
 
@@ -83,18 +82,107 @@ class CompetitionQuizService:
 
     @staticmethod
     def _enforce_computable_limit(competition_id):
-        """Asegura que solo haya 5 quizzes COMPUTABLE en una competencia"""
+        """Asegura que solo haya X quizzes COMPUTABLE en una competencia"""
         computable_quizzes = db.session.scalars(
             select(CompetitionQuiz)
             .where(
                 CompetitionQuiz.competition_id == competition_id,
                 CompetitionQuiz.status == CompetitionQuizStatus.COMPUTABLE
             )
-            .order_by(CompetitionQuiz.end_time.asc())  # 🔹 Ordenar por fecha más antigua
+            .order_by(CompetitionQuiz.end_time.asc())  
         ).all()
 
-        if len(computable_quizzes) > 3:
+        if len(computable_quizzes) > 5:  # Ajusta el límite aquí si cambia
             quiz_to_downgrade = computable_quizzes[0]  # El más antiguo
             quiz_to_downgrade.set_status(CompetitionQuizStatus.NO_COMPUTABLE)
             db.session.add(quiz_to_downgrade)
             print(f"🔻 Quiz {quiz_to_downgrade.id} cambiado a NO_COMPUTABLE")
+
+    @staticmethod
+    def _update_competition_scoresOLD(competition_id):
+        """Recalcula los puntajes de todos los participantes de la competencia"""
+        print(f"🔄 Recalculando puntajes para competencia {competition_id}")
+
+        # 🔹 Obtener la suma de score_competition por participante en quizzes COMPUTABLES
+        participant_scores = db.session.execute(
+            select(
+                CompetitionQuizParticipants.participant_id,
+                func.sum(CompetitionQuizParticipants.score_competition).label("total_score")
+            )
+            .join(CompetitionQuiz, CompetitionQuiz.id == CompetitionQuizParticipants.competition_quiz_id)
+            .where(
+                CompetitionQuiz.competition_id == competition_id,
+                CompetitionQuiz.status == CompetitionQuizStatus.COMPUTABLE
+            )
+            .group_by(CompetitionQuizParticipants.participant_id)
+        ).all()
+
+        if not participant_scores:
+            print(f"⚪ No hay participantes con puntajes en competencia {competition_id}")
+            return
+
+        # 🔹 Actualizar en la tabla CompetitionParticipant
+        updates = [
+            {
+                "competition_id": competition_id,
+                "participant_id": participant_id,
+                "score": total_score,
+                "updated_at": datetime.now(timezone.utc)
+            }
+            for participant_id, total_score in participant_scores
+        ]
+
+        db.session.bulk_update_mappings(CompetitionParticipant, updates)
+        print(f"✅ Puntajes recalculados para competencia {competition_id}")
+
+    @staticmethod
+    def _update_competition_scores(competition_id):
+        """Recalcula los puntajes de todos los participantes de la competencia"""
+        print(f"🔄 Recalculando puntajes para competencia {competition_id}")
+
+        # 🔹 Obtener la suma de score_competition por participante en quizzes COMPUTABLES
+        participant_scores = db.session.execute(
+            select(
+                CompetitionQuizParticipants.participant_id,
+                func.sum(CompetitionQuizParticipants.score_competition).label("total_score")
+            )
+            .join(CompetitionQuiz, CompetitionQuiz.id == CompetitionQuizParticipants.competition_quiz_id)
+            .where(
+                CompetitionQuiz.competition_id == competition_id,
+                CompetitionQuiz.status == CompetitionQuizStatus.COMPUTABLE
+            )
+            .group_by(CompetitionQuizParticipants.participant_id)
+        ).all()
+
+        if not participant_scores:
+            print(f"⚪ No hay participantes con puntajes en competencia {competition_id}")
+            return
+
+        # 🔹 Obtener los IDs de CompetitionParticipant correspondientes
+        participant_ids = [p[0] for p in participant_scores]
+
+        participant_map = {
+            p.participant_id: p.id for p in db.session.scalars(
+                select(CompetitionParticipant)
+                .where(
+                    CompetitionParticipant.competition_id == competition_id,
+                    CompetitionParticipant.participant_id.in_(participant_ids)
+                )
+                .options(load_only(CompetitionParticipant.id, CompetitionParticipant.participant_id))
+            )
+        }
+
+        # 🔹 Preparar la actualización con los IDs correctos
+        updates = [
+            {
+                "id": participant_map[participant_id],  # ✅ Ahora incluye el ID
+                "score": total_score,
+                "updated_at": datetime.now(timezone.utc)
+            }
+            for participant_id, total_score in participant_scores
+            if participant_id in participant_map
+        ]
+
+        if updates:
+            db.session.bulk_update_mappings(CompetitionParticipant, updates)
+            print(f"✅ Puntajes recalculados para competencia {competition_id}")
