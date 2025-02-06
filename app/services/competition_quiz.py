@@ -1,10 +1,8 @@
 from sqlalchemy import select, and_, update, bindparam
 from sqlalchemy.orm import load_only
 from extensions import db
-from app.models import CompetitionQuiz, CompetitionQuizParticipants, CompetitionParticipant
-
+from app.models import CompetitionQuiz, CompetitionQuizParticipants
 from datetime import datetime, timezone
-
 from app.utils.lib.constants import CompetitionQuizStatus
 
 class CompetitionQuizService:
@@ -32,12 +30,17 @@ class CompetitionQuizService:
 
             print(f"🟢 Iniciando procesamiento quiz {locked_quiz.id}")
 
-            # 🔹 Aquí ya hay una transacción implícita
+            # 🔹 Calcular resultados del quiz
             CompetitionQuizService._calculate_results(locked_quiz)
-            locked_quiz.set_status(CompetitionQuizStatus.COMPUTABLE)
-            db.session.add(locked_quiz)  # Asegurar que el cambio se registre en la sesión
 
-            db.session.commit()  # 🔥 Este commit es suficiente para todos los cambios
+            # 🔹 Marcar como COMPUTABLE
+            locked_quiz.set_status(CompetitionQuizStatus.COMPUTABLE)
+            db.session.add(locked_quiz)
+
+            # 🔹 Verificar límite de quizzes COMPUTABLES (máximo 5)
+            CompetitionQuizService._enforce_computable_limit(locked_quiz.competition_id)
+
+            db.session.commit()  # 🔥 Un solo commit para todo
 
             return True  
 
@@ -48,8 +51,7 @@ class CompetitionQuizService:
 
     @staticmethod
     def _calculate_results(quiz):
-        """Lógica actualizada para escribir en score_competition"""
-        # 1. Obtener participaciones válidas ordenadas
+        """Lógica para escribir en score_competition"""
         participations = db.session.scalars(
             select(CompetitionQuizParticipants)
             .where(
@@ -63,14 +65,10 @@ class CompetitionQuizService:
             print(f"⚪ Quiz {quiz.id} sin participaciones válidas")
             return
 
-        # 2. Asignar puntos según posición
         puntos_por_puesto = [10, 8, 6, 5, 4, 3, 2, 1]
-
-        # 3. Actualizar score_competition directamente en la misma sesión
         for idx, participation in enumerate(participations):
             participation.score_competition = puntos_por_puesto[idx] if idx < len(puntos_por_puesto) else 1
 
-        # 🔹 Bulk update sin commit aquí
         db.session.bulk_update_mappings(
             CompetitionQuizParticipants,
             [
@@ -83,4 +81,20 @@ class CompetitionQuizService:
             ]
         )
 
-        # 🔥 No hacer `db.session.commit()` aquí, solo en `process_quiz_results()`
+    @staticmethod
+    def _enforce_computable_limit(competition_id):
+        """Asegura que solo haya 5 quizzes COMPUTABLE en una competencia"""
+        computable_quizzes = db.session.scalars(
+            select(CompetitionQuiz)
+            .where(
+                CompetitionQuiz.competition_id == competition_id,
+                CompetitionQuiz.status == CompetitionQuizStatus.COMPUTABLE
+            )
+            .order_by(CompetitionQuiz.end_time.asc())  # 🔹 Ordenar por fecha más antigua
+        ).all()
+
+        if len(computable_quizzes) > 3:
+            quiz_to_downgrade = computable_quizzes[0]  # El más antiguo
+            quiz_to_downgrade.set_status(CompetitionQuizStatus.NO_COMPUTABLE)
+            db.session.add(quiz_to_downgrade)
+            print(f"🔻 Quiz {quiz_to_downgrade.id} cambiado a NO_COMPUTABLE")
