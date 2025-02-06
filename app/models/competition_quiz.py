@@ -2,12 +2,9 @@ from extensions import db
 from datetime import datetime, timezone
 from app.utils.lib.formatting import safe_date_isoformat
 from sqlalchemy.orm import validates
-import enum
 
-class CompetitionQuizStatus(enum.Enum):
-    ACTIVO = "activo"
-    COMPUTABLE = "computable"
-    NO_COMPUTABLE = "no_computable"
+from app.utils.lib.constants import CompetitionQuizStatus
+
 
 class CompetitionQuiz(db.Model):
     """
@@ -75,7 +72,7 @@ class CompetitionQuiz(db.Model):
         """
         Validar que el estado proporcionado es válido.
         """
-        if value not in CompetitionQuizStatus:
+        if value not in CompetitionQuizStatus.values():
             raise ValueError(f"El estado '{value}' no es válido.")
         return value
 

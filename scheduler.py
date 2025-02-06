@@ -4,6 +4,7 @@ from sqlalchemy import select, and_
 from extensions import db
 from app.models import CompetitionQuiz
 from app.services import CompetitionQuizService
+from app.utils.lib.constants import CompetitionQuizStatus
 
 def check_pending_quizzes(app):
     """Verificación robusta de quizzes pendientes con gestión de contexto"""
@@ -16,7 +17,8 @@ def check_pending_quizzes(app):
                 select(CompetitionQuiz)
                 .where(
                     CompetitionQuiz.end_time <= datetime.now(timezone.utc),
-                    CompetitionQuiz.processed == False  # noqa: E712
+                    CompetitionQuiz.status == CompetitionQuizStatus.ACTIVO  # noqa: E712
+                    # CompetitionQuiz.processed == False  # noqa: E712
                 )
                 .execution_options(stream_results=True)
                 .with_for_update(skip_locked=True)  # Solo para bases que soportan SKIP LOCKED
@@ -45,8 +47,8 @@ def start_scheduler(app):
         scheduler.add_job(
             lambda: check_pending_quizzes(app),
             'interval',
-            # seconds=40,
-            hours=1,
+            seconds=40,
+            # hours=1,
             max_instances=1,
             coalesce=True
         )

@@ -1,8 +1,11 @@
-from sqlalchemy import select, and_, func, update, bindparam
+from sqlalchemy import select, and_, update, bindparam
 from sqlalchemy.orm import load_only
 from extensions import db
 from app.models import CompetitionQuiz, CompetitionQuizParticipants, CompetitionParticipant
 
+from datetime import datetime, timezone
+
+from app.utils.lib.constants import CompetitionQuizStatus
 
 class CompetitionQuizService:
     @staticmethod
@@ -12,12 +15,12 @@ class CompetitionQuizService:
         Devuelve True si el procesamiento fue exitoso.
         """
         try:
-            # Bloquear y recargar el registro para evitar race conditions
+            # 🔹 Bloquear y recargar el registro para evitar race conditions
             locked_quiz = db.session.execute(
                 select(CompetitionQuiz)
                 .where(
                     CompetitionQuiz.id == competition_quiz.id,
-                    CompetitionQuiz.processed == False  # noqa: E712
+                    CompetitionQuiz.status == CompetitionQuizStatus.ACTIVO  
                 )
                 .execution_options(populate_existing=True)
                 .with_for_update()
@@ -29,21 +32,23 @@ class CompetitionQuizService:
 
             print(f"🟢 Iniciando procesamiento quiz {locked_quiz.id}")
 
-            with db.session.begin_nested():
-                CompetitionQuizService._calculate_results(locked_quiz)
-                locked_quiz.processed = True
+            # 🔹 Aquí ya hay una transacción implícita
+            CompetitionQuizService._calculate_results(locked_quiz)
+            locked_quiz.set_status(CompetitionQuizStatus.COMPUTABLE)
+            db.session.add(locked_quiz)  # Asegurar que el cambio se registre en la sesión
 
-            db.session.commit()
-            return True
+            db.session.commit()  # 🔥 Este commit es suficiente para todos los cambios
+
+            return True  
 
         except Exception as e:
-            db.session.rollback()
+            db.session.rollback()  # Asegurar rollback en cualquier error
             print(f"🔴 Error crítico procesando quiz {competition_quiz.id}: {str(e)}")
             return False
 
     @staticmethod
     def _calculate_results(quiz):
-        """Lógica central de cálculo de resultados con batch updates"""
+        """Lógica actualizada para escribir en score_competition"""
         # 1. Obtener participaciones válidas ordenadas
         participations = db.session.scalars(
             select(CompetitionQuizParticipants)
@@ -58,49 +63,24 @@ class CompetitionQuizService:
             print(f"⚪ Quiz {quiz.id} sin participaciones válidas")
             return
 
-        # 2. Obtener IDs de participantes para batch query
-        participant_ids = [p.participant_id for p in participations]
-        
-        # 3. Actualización masiva de scores usando SQLAlchemy Core para performance
+        # 2. Asignar puntos según posición
         puntos_por_puesto = [10, 8, 6, 5, 4, 3, 2, 1]
-        update_values = []
-        
-        for idx, part in enumerate(participations):
-            puntos = puntos_por_puesto[idx] if idx < len(puntos_por_puesto) else 1
-            update_values.append({
-                "participant_id": part.participant_id,
-                "competition_id": quiz.competition_id,
-                "puntos": puntos
-            })
 
-        # 4. Update using bulk update
-        if update_values:
-            # 🔥 Corrección clave: Usar SQLAlchemy Core con tabla explícita
-            table = CompetitionParticipant.__table__
-            
-            stmt = (
-                update(table)
-                .where(
-                    and_(
-                        table.c.participant_id == bindparam('p_participant_id'),
-                        table.c.competition_id == bindparam('p_competition_id')
-                    )
-                )
-                .values(score=table.c.score + bindparam('p_puntos'))
-            )
+        # 3. Actualizar score_competition directamente en la misma sesión
+        for idx, participation in enumerate(participations):
+            participation.score_competition = puntos_por_puesto[idx] if idx < len(puntos_por_puesto) else 1
 
-            # Parámetros renombrados para evitar conflicto
-            params = [
+        # 🔹 Bulk update sin commit aquí
+        db.session.bulk_update_mappings(
+            CompetitionQuizParticipants,
+            [
                 {
-                    "p_participant_id": item["participant_id"],
-                    "p_competition_id": item["competition_id"],
-                    "p_puntos": item["puntos"]
+                    'id': p.id,
+                    'score_competition': p.score_competition,
+                    'updated_at': datetime.now(timezone.utc)
                 }
-                for item in update_values
+                for p in participations
             ]
+        )
 
-            db.session.execute(
-                stmt,
-                params,
-                execution_options={"synchronize_session": False}
-            )
+        # 🔥 No hacer `db.session.commit()` aquí, solo en `process_quiz_results()`
