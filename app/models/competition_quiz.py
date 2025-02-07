@@ -101,7 +101,7 @@ class CompetitionQuiz(db.Model):
             "competition_id": self.competition_id,
             "quiz_id": self.quiz_id,
             "time_limit": self.time_limit,
-            "status": self.status.value,
+            "status": self.status,
             "start_time": safe_date_isoformat(self.start_time),
             "end_time": safe_date_isoformat(self.end_time),
             "created_at": safe_date_isoformat(self.created_at),

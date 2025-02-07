@@ -27,7 +27,7 @@ def create_app(config_name='development'):
     app.register_blueprint(competition_bp, url_prefix='/competitions')
     app.register_blueprint(quiz_participation_bp, url_prefix='/quiz-participation')
     
-    @app.route('/competitions')
+    @app.route('/')
     def index():
         return jsonify({
             'message': 'Welcome to the competition MicroService!',

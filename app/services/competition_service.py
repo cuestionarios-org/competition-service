@@ -15,6 +15,7 @@ class CompetitionService:
         competitions = (Competition.query
         .options(joinedload(Competition.quizzes), joinedload(Competition.participants))
         .all())
+        
         return competitions
 
     @staticmethod
@@ -132,6 +133,8 @@ class CompetitionService:
         :return: Instancia de la competencia.
         """
         competition = Competition.query.get(competition_id)
+
+
         if not competition:
             raise NotFound(f"Competition with ID {competition_id} not found.")
         return competition

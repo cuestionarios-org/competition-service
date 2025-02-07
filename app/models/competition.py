@@ -143,31 +143,30 @@ class Competition(db.Model):
             raise ValueError(f"No se puede cambiar de {self.state} a {new_state}.")
         self.state = new_state
 
-    def close_if_ended(self):
-        """
-        Verifica si la competencia debe ser cerrada según su fecha de finalización
-        y realiza el cambio de estado dentro de una transacción segura.
-        """
-        if self.state in ['lista', 'en curso'] and dt.datetime.now(dt.timezone.utc) >= self.end_date:
-            try:
-                # Iniciar una transacción
-                with db.session.begin_nested():
-                    self.state = 'cerrada'
-                    db.session.add(self)
-                db.session.commit()
-                print(f"Competencia {self.id} cerrada automáticamente.")
-            except SQLAlchemyError as e:
-                db.session.rollback()
-                print(f"Error al cerrar la competencia {self.id}: {e}")
-        else:
-            print(f"No es necesario cerrar la competencia {self.id} en estado {self.state}.")
+    # def close_if_ended(self):
+    #     """
+    #     Verifica si la competencia debe ser cerrada según su fecha de finalización
+    #     y realiza el cambio de estado dentro de una transacción segura.
+    #     """
+    #     if self.state in ['lista', 'en curso'] and dt.datetime.now(dt.timezone.utc) >= self.end_date:
+    #         try:
+    #             # Iniciar una transacción
+    #             with db.session.begin_nested():
+    #                 self.state = 'cerrada'
+    #                 db.session.add(self)
+    #             db.session.commit()
+    #             print(f"Competencia {self.id} cerrada automáticamente.")
+    #         except SQLAlchemyError as e:
+    #             db.session.rollback()
+    #             print(f"Error al cerrar la competencia {self.id}: {e}")
+    #     else:
+    #         print(f"No es necesario cerrar la competencia {self.id} en estado {self.state}.")
 
     def __repr__(self):
         pretty_print_dict(self.to_dict())
         return ""
 
     def to_dict(self):
-       
         return {
             "id": self.id,
             "title": self.title,
