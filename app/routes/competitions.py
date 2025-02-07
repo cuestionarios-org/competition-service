@@ -86,3 +86,16 @@ def add_participant_to_competition(competition_id, participant_id):
         return jsonify({"msg": "Participant added to competition successfully.", "participant": participant.to_dict()}), 201
     except Exception as e:
         return jsonify({"msg": f"Error adding participant to competition: {str(e)}"}), 400
+
+# Ruta para obtener las posiciones globales de una competencia
+@competition_bp.route('/<int:competition_id>/ranking', methods=['GET'])
+def get_competition_ranking(competition_id):
+    """
+    Obtiene las posiciones globales de los participantes en una competencia.
+    """
+    try:
+        ranking = CompetitionParticipantService.get_competition_ranking_with_quizzes_computables(competition_id)
+        # ranking = CompetitionService.get_competition_ranking(competition_id)
+        return jsonify(ranking), 200
+    except Exception as e:
+        return jsonify({"msg": f"Error fetching competition ranking: {str(e)}"}), 400

@@ -43,4 +43,5 @@ class CompetitionParticipant(db.Model):
             "id": self.id,
             "competition_id": self.competition_id,
             "participant_id": self.participant_id,
+            "score": self.score,
             }

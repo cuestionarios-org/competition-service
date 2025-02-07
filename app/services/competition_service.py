@@ -125,69 +125,6 @@ class CompetitionService:
         db.session.commit()
         return competition
     @staticmethod
-    def update_competitionOLD(competition_id, data):
-        """
-        Actualiza los detalles de una competencia.
-        :param competition_id: ID de la competencia.
-        :param data: Diccionario con los datos actualizados.
-        :return: Instancia de la competencia actualizada.
-        """
-        competition = Competition.query.get_or_404(competition_id)
-        if not competition:
-            raise NotFound(f"Competition with ID {competition_id} not found.")
-
-
-        competition.title = data.get('title', competition.title)
-        competition.description = data.get('description', competition.description)
-        competition.start_date = data.get('start_date', competition.start_date)
-        competition.end_date = data.get('end_date', competition.end_date)    
-        competition.participant_limit = data.get('participant_limit', competition.participant_limit)
-        competition.currency_cost = data.get('currency_cost', competition.currency_cost)
-        competition.ticket_cost = data.get('ticket_cost', competition.ticket_cost)
-        competition.credit_cost = data.get('credit_cost', competition.credit_cost)
-        competition.modified_by = data.get('modified_by', competition.modified_by)
-
-        # Cambiar el estado si se proporciona uno nuevo
-        new_state = data.get('state')
-        if new_state and new_state != competition.state:
-            try:
-                competition.set_state(new_state)
-            except ValueError as e:
-                raise ValueError(f"No se pudo actualizar el estado: {str(e)}")
-            
-        # Manejo de cuestionarios asociados a la competencia
-        
-        if 'quizzes' in data:
-            current_quizzes = {q.quiz_id: q for q in competition.quizzes}
-            
-            for quiz_data in data['quizzes']:
-                quiz_id = quiz_data['quiz_id']
-                
-                if quiz_id in current_quizzes:
-                    # Actualizar quiz existente
-                    quiz = current_quizzes[quiz_id]
-                    quiz.start_time = datetime.fromisoformat(quiz_data.get('start_time')) if quiz_data.get('start_time') else None
-                    quiz.end_time = datetime.fromisoformat(quiz_data.get('end_time')) if quiz_data.get('end_time') else None
-                    quiz.time_limit = quiz_data.get('time_limit', 0)
-                else:
-                    # Agregar nuevo quiz
-                    CompetitionService.add_quiz_to_competition(
-                        competition_id=competition.id,
-                        quiz_data=quiz_data
-                    )
-            
-            # Eliminar quizzes no presentes
-            current_ids = {q.quiz_id for q in competition.quizzes}
-            new_ids = {q['quiz_id'] for q in data['quizzes']}
-            to_remove = current_ids - new_ids
-            
-            for quiz_id in to_remove:
-                CompetitionService.remove_quiz_from_competition(competition.id, quiz_id)
-
-        db.session.commit()
-        return competition
-
-    @staticmethod
     def get_competition(competition_id):
         """
         Recupera una competencia por ID.
@@ -198,6 +135,7 @@ class CompetitionService:
         if not competition:
             raise NotFound(f"Competition with ID {competition_id} not found.")
         return competition
+    
 
     @staticmethod
     def add_quiz_to_competition(competition_id, quiz_data):
@@ -259,3 +197,4 @@ class CompetitionService:
         db.session.delete(competition_quiz_id)
         db.session.commit()
         return competition
+

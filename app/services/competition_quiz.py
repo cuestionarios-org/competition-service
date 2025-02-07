@@ -99,43 +99,6 @@ class CompetitionQuizService:
             print(f"🔻 Quiz {quiz_to_downgrade.id} cambiado a NO_COMPUTABLE")
 
     @staticmethod
-    def _update_competition_scoresOLD(competition_id):
-        """Recalcula los puntajes de todos los participantes de la competencia"""
-        print(f"🔄 Recalculando puntajes para competencia {competition_id}")
-
-        # 🔹 Obtener la suma de score_competition por participante en quizzes COMPUTABLES
-        participant_scores = db.session.execute(
-            select(
-                CompetitionQuizParticipants.participant_id,
-                func.sum(CompetitionQuizParticipants.score_competition).label("total_score")
-            )
-            .join(CompetitionQuiz, CompetitionQuiz.id == CompetitionQuizParticipants.competition_quiz_id)
-            .where(
-                CompetitionQuiz.competition_id == competition_id,
-                CompetitionQuiz.status == CompetitionQuizStatus.COMPUTABLE
-            )
-            .group_by(CompetitionQuizParticipants.participant_id)
-        ).all()
-
-        if not participant_scores:
-            print(f"⚪ No hay participantes con puntajes en competencia {competition_id}")
-            return
-
-        # 🔹 Actualizar en la tabla CompetitionParticipant
-        updates = [
-            {
-                "competition_id": competition_id,
-                "participant_id": participant_id,
-                "score": total_score,
-                "updated_at": datetime.now(timezone.utc)
-            }
-            for participant_id, total_score in participant_scores
-        ]
-
-        db.session.bulk_update_mappings(CompetitionParticipant, updates)
-        print(f"✅ Puntajes recalculados para competencia {competition_id}")
-
-    @staticmethod
     def _update_competition_scores(competition_id):
         """Recalcula los puntajes de todos los participantes de la competencia"""
         print(f"🔄 Recalculando puntajes para competencia {competition_id}")
