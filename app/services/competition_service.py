@@ -3,7 +3,7 @@ from extensions import db
 from werkzeug.exceptions import BadRequest, NotFound
 from sqlalchemy.orm import joinedload
 from datetime import datetime
-
+from dateutil import parser
 
 class CompetitionService:
     @staticmethod
@@ -30,10 +30,15 @@ class CompetitionService:
         
         # Validar fechas principales
         try:
-            start_date = datetime.fromisoformat(data['start_date'])
-            end_date = datetime.fromisoformat(data['end_date'])
+            # start_date = datetime.fromisoformat(data['start_date'])
+            # start_date = datetime.fromisoformat(data['start_date'].replace("Z", "+00:00"))
+            # end_date = datetime.fromisoformat(data['end_date'].replace("Z", "+00:00"))
+            # end_date = datetime.fromisoformat(data['end_date'])
+
+            start_date = parser.isoparse(data['start_date'])
+            end_date = parser.isoparse(data['end_date'])
         except ValueError:
-            raise BadRequest("Formato de fecha inválido. Usar ISO 8601")
+            raise BadRequest(f"Formato de fecha inválido. Usar ISO 8601 start_date !!!!>> {data['start_date']}")
 
         competition = Competition(
             title=data['title'],
@@ -105,8 +110,8 @@ class CompetitionService:
                     quiz = current_quizzes[quiz_id]
                     
                     # Solo actualizar los campos que están presentes en los datos
-                    quiz.start_time = datetime.fromisoformat(quiz_data.get('start_time')) if quiz_data.get('start_time') else quiz.start_time
-                    quiz.end_time = datetime.fromisoformat(quiz_data.get('end_time')) if quiz_data.get('end_time') else quiz.end_time
+                    quiz.start_time = parser.isoparse(quiz_data.get('start_time')) if quiz_data.get('start_time') else quiz.start_time
+                    quiz.end_time = parser.isoparse(quiz_data.get('end_time')) if quiz_data.get('end_time') else quiz.end_time
                     quiz.time_limit = quiz_data.get('time_limit', quiz.time_limit)
                 else:
                     # Agregar nuevo quiz
@@ -157,8 +162,8 @@ class CompetitionService:
                 raise ValueError("Falta quiz_id en los datos del cuestionario")
             
             # Convertir fechas
-            start_time = datetime.fromisoformat(quiz_data.get('start_time')) if quiz_data.get('start_time') else None
-            end_time = datetime.fromisoformat(quiz_data.get('end_time')) if quiz_data.get('end_time') else None
+            start_time = parser.isoparse(quiz_data.get('start_time')) if quiz_data.get('start_time') else None
+            end_time = parser.isoparse(quiz_data.get('end_time')) if quiz_data.get('end_time') else None
             
             # Validar límite de tiempo
             time_limit = quiz_data.get('time_limit', 0)
@@ -183,7 +188,8 @@ class CompetitionService:
             
         except ValueError as e:
             db.session.rollback()
-            raise BadRequest(str(e))
+            raise BadRequest(f"SVC-Competition {str}")
+        
         except Exception as e:
             db.session.rollback()
             raise Exception(f"Error al agregar quiz: {str(e)}")

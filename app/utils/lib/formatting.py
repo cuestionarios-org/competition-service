@@ -1,4 +1,5 @@
 from datetime import datetime
+from dateutil import parser
 
 def safe_date_isoformat(date):
     """
@@ -8,7 +9,7 @@ def safe_date_isoformat(date):
         return date.isoformat()
     elif isinstance(date, str):  # Para datos legacy o entradas incorrectas
         try:
-            parsed_date = datetime.fromisoformat(date)
+            parsed_date = parser.isoparse(date)
             return parsed_date.isoformat()
         except (ValueError, TypeError):
             return None

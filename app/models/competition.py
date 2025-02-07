@@ -5,6 +5,8 @@ from app.utils.lib.pretty import pretty_print_dict
 from sqlalchemy.exc import SQLAlchemyError
 from app.models.competition_quiz import CompetitionQuiz
 from app.models.competition_participant import CompetitionParticipant
+from dateutil import parser
+
 
 from app.utils.lib.formatting import safe_date_isoformat
 
@@ -74,7 +76,7 @@ class Competition(db.Model):
         # Convertir strings a datetime
         if isinstance(value, str):
             try:
-                value = datetime.fromisoformat(value)
+                value = parser.isoparse(value)
             except ValueError:
                 raise ValueError(f"Formato inválido para {key}. Usar ISO 8601")
         
