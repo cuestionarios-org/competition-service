@@ -10,6 +10,13 @@ COPY entrypoint.sh /app/entrypoint.sh
 
 # Asegurar permisos de ejecución para el archivo
 RUN chmod +x /app/entrypoint.sh
+
+# # Instalar dos2unix para convertir CRLF a LF
+# RUN apt-get update && apt-get install -y dos2unix && \
+#     echo "Antes de conversión:" && file /app/entrypoint.sh && \
+#     dos2unix -v /app/entrypoint.sh && \
+#     echo "Después de conversión:" && file /app/entrypoint.sh
+
 # Instala las dependencias del proyecto
 RUN pip install -r requirements.txt
 
