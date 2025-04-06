@@ -1,14 +1,35 @@
+# Importaciones necesarias
 from flask import Blueprint, request, jsonify
 from app.services import CompetitionService, CompetitionParticipantService
 
-# Blueprint para las rutas de Competition
+# Blueprint para agrupar las rutas relacionadas con "Competition"
 competition_bp = Blueprint('competition', __name__)
 
-# Ruta para crear una nueva competencia
+# --------------------------------------------
+# 📌 Ruta: Crear una nueva competencia
+# --------------------------------------------
+
 @competition_bp.route('/', methods=['POST'])
 def create_competition():
     """
     Crea una nueva competencia.
+
+    Método: POST
+    Endpoint: /competitions/
+
+    Request JSON esperado:
+    {
+        "title": "Nombre de la competencia",
+        "start_date": "YYYY-MM-DDTHH:MM:SSZ",
+        "end_date": "YYYY-MM-DDTHH:MM:SSZ",
+        "created_by": "usuario123",
+        ...
+    }
+
+    Respuestas:
+    - 201: Competencia creada exitosamente
+    - 400: Datos inválidos
+    - 500: Error interno del servidor
     """
     data = request.get_json()
     if not data:
@@ -16,15 +37,27 @@ def create_competition():
 
     try:
         competition = CompetitionService.create_competition(data)
-        return jsonify({"msg": "Competition created successfully.", "competition": competition.to_dict()}), 201
+        return jsonify({
+            "msg": "Competition created successfully.",
+            "competition": competition.to_dict()
+        }), 201
     except Exception as e:
         return jsonify({"msg": "An error occurred.", "error": str(e)}), 500
 
-# Ruta para obtener todas las competencias
+# --------------------------------------------
+# 📌 Ruta: Obtener todas las competencias
+# --------------------------------------------
 @competition_bp.route('/', methods=['GET'])
 def get_all_competitions():
     """
-    Lista todas las competencias.
+    Lista todas las competencias existentes.
+
+    Método: GET
+    Endpoint: /competitions/
+
+    Respuestas:
+    - 200: Lista de competencias
+    - 500: Error al obtener los datos
     """
     try:
         competitions = CompetitionService.get_all_competitions()
@@ -33,11 +66,20 @@ def get_all_competitions():
     except Exception as e:
         return jsonify({"msg": "An error occurred.", "error": str(e)}), 500
 
-# Ruta para obtener una competencia por ID
+# --------------------------------------------
+# 📌 Ruta: Obtener competencia por ID
+# --------------------------------------------
 @competition_bp.route('/<int:id>', methods=['GET'])
 def get_competition_by_id(id):
     """
-    Obtiene una competencia por su ID.
+    Obtiene una competencia específica por su ID.
+
+    Método: GET
+    Endpoint: /competitions/<id>
+
+    Respuestas:
+    - 200: Competencia encontrada
+    - 400: Error al buscar la competencia
     """
     try:
         competition = CompetitionService.get_competition(id)
@@ -45,11 +87,22 @@ def get_competition_by_id(id):
     except Exception as e:
         return jsonify({"msg": f"Error fetching competition: {str(e)}"}), 400
 
-# Ruta para actualizar una competencia por ID
-@competition_bp.route('/<int:id>', methods=['PUT'])
+# --------------------------------------------
+# 📌 Ruta: Actualizar competencia por ID
+# --------------------------------------------
+@competition_bp.route('/<int:id>', methods=['PUT']) 
 def update_competition(id):
     """
-    Actualiza una competencia por su ID.
+    Actualiza los datos de una competencia existente.
+
+    Método: PUT
+    Endpoint: /competitions/<id>
+
+    Request JSON esperado: datos parciales o completos de la competencia.
+
+    Respuestas:
+    - 200: Competencia actualizada exitosamente
+    - 400: Datos inválidos o error en la actualización
     """
     data = request.get_json()
     if not data:
@@ -57,15 +110,27 @@ def update_competition(id):
 
     try:
         updated_competition = CompetitionService.update_competition(id, data)
-        return jsonify({"msg": "Competition updated successfully.", "competition": updated_competition.to_dict()}), 200
+        return jsonify({
+            "msg": "Competition updated successfully.",
+            "competition": updated_competition.to_dict()
+        }), 200
     except Exception as e:
         return jsonify({"msg": f"Error updating competition: {str(e)}"}), 400
 
-# Ruta para eliminar una competencia por ID
+# --------------------------------------------
+# 📌 Ruta: Eliminar competencia por ID
+# --------------------------------------------
 @competition_bp.route('/<int:id>', methods=['DELETE'])
 def delete_competition(id):
     """
     Elimina una competencia por su ID.
+
+    Método: DELETE
+    Endpoint: /competitions/<id>
+
+    Respuestas:
+    - 200: Competencia eliminada
+    - 400: Error al intentar eliminar
     """
     try:
         CompetitionService.delete_competition(id)
@@ -73,29 +138,47 @@ def delete_competition(id):
     except Exception as e:
         return jsonify({"msg": f"Error deleting competition: {str(e)}"}), 400
 
-
-
-# Ruta para inscribir un participante en una competencia
+# --------------------------------------------
+# 📌 Ruta: Inscribir participante en una competencia
+# --------------------------------------------
 @competition_bp.route('/<int:competition_id>/participants/<int:participant_id>', methods=['POST'])
 def add_participant_to_competition(competition_id, participant_id):
     """
     Inscribe un participante en una competencia.
+
+    Método: POST
+    Endpoint: /competitions/<competition_id>/participants/<participant_id>
+
+    Respuestas:
+    - 201: Participante inscrito exitosamente
+    - 400: Error en la inscripción
     """
     try:
         participant = CompetitionParticipantService.add_participant_to_competition(competition_id, participant_id)
-        return jsonify({"msg": "Participant added to competition successfully.", "participant": participant.to_dict()}), 201
+        return jsonify({
+            "msg": "Participant added to competition successfully.",
+            "participant": participant.to_dict()
+        }), 201
     except Exception as e:
         return jsonify({"msg": f"Error adding participant to competition: {str(e)}"}), 400
 
-# Ruta para obtener las posiciones globales de una competencia
+# --------------------------------------------
+# 📌 Ruta: Obtener ranking de una competencia
+# --------------------------------------------
 @competition_bp.route('/<int:competition_id>/ranking', methods=['GET'])
 def get_competition_ranking(competition_id):
     """
-    Obtiene las posiciones globales de los participantes en una competencia.
+    Obtiene el ranking (posiciones) de los participantes en una competencia.
+
+    Método: GET
+    Endpoint: /competitions/<competition_id>/ranking
+
+    Respuestas:
+    - 200: Lista ordenada de participantes con sus puntajes
+    - 400: Error al generar el ranking
     """
     try:
         ranking = CompetitionParticipantService.get_competition_ranking_with_quizzes_computables(competition_id)
-        # ranking = CompetitionService.get_competition_ranking(competition_id)
         return jsonify(ranking), 200
     except Exception as e:
         return jsonify({"msg": f"Error fetching competition ranking: {str(e)}"}), 400
