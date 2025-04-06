@@ -7,6 +7,7 @@ from sqlalchemy import text
 from app.utils.commands.cli import seed, init_db
 from app.routes.competitions import competition_bp
 from app.routes.quizz_participation import quiz_participation_bp
+from app.utils.db import create_database_if_not_exists
 
 from app.utils.errors.handlers import register_error_handlers
 
@@ -18,6 +19,9 @@ def create_app(config_name='development'):
     print(app.config['SQLALCHEMY_DATABASE_URI'])
     db.init_app(app)
     migrate.init_app(app, db)
+
+    # Intentar crear la base de datos si no existe
+    create_database_if_not_exists(app)
 
     app.cli.add_command(init_db)
     app.cli.add_command(seed)
@@ -63,6 +67,7 @@ def create_app(config_name='development'):
 if __name__ == '__main__':
     import os
     env = os.getenv('FLASK_ENV', 'development')
+    PORT = os.getenv('COMPETITION_PORT', 5016)
     app = create_app(env)
-    app.run(host='0.0.0.0', port=5006, debug=True)
+    app.run(host='0.0.0.0', port=PORT, debug=True)
 

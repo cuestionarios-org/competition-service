@@ -11,20 +11,13 @@ fi
 
 
 # Espera a que PostgreSQL esté disponible
-dockerize -wait tcp://$COMPETITION_POSTGRES_HOST:$COMPETITION_POSTGRES_PORT -timeout 30s
+echo "⏳ Esperando a que PostgreSQL esté listo..."
+dockerize -wait tcp://$COMPETITION_POSTGRES_HOST:5432 -timeout 30s
 if [ $? -ne 0 ]; then
-    echo "Error: No se pudo conectar a PostgreSQL en $COMPETITION_POSTGRES_HOST:$COMPETITION_POSTGRES_PORT"
+    echo "Error: No se pudo conectar a PostgreSQL en $COMPETITION_POSTGRES_HOST:5432"
     exit 1
 fi
-
-
-flask init_db
-echo "Base de datos inicializada"
-
-
-# Ejecuta las migraciones de la base de datos
-flask db upgrade
-echo "Base de datos disponible"
+echo "⏳ Esperando a que PostgreSQL esté listo..."
 
 
 # Inicia la aplicación

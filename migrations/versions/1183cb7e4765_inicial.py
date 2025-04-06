@@ -1,8 +1,8 @@
 """inicial
 
-Revision ID: c97c3ae106d1
+Revision ID: 1183cb7e4765
 Revises: 
-Create Date: 2025-01-31 17:01:00.090061
+Create Date: 2025-04-03 20:40:09.168576
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'c97c3ae106d1'
+revision = '1183cb7e4765'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -27,8 +27,8 @@ def upgrade():
     sa.Column('modified_by', sa.Integer(), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('start_date', sa.DateTime(timezone=True), nullable=False),
-    sa.Column('end_date', sa.DateTime(timezone=True), nullable=False),
+    sa.Column('start_date', sa.DateTime(timezone=True), nullable=True),
+    sa.Column('end_date', sa.DateTime(timezone=True), nullable=True),
     sa.Column('participant_limit', sa.Integer(), nullable=False),
     sa.Column('currency_cost', sa.Integer(), nullable=False),
     sa.Column('ticket_cost', sa.Integer(), nullable=False),
@@ -47,6 +47,7 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('competition_id', sa.Integer(), nullable=False),
     sa.Column('participant_id', sa.Integer(), nullable=False),
+    sa.Column('score', sa.Integer(), nullable=True, comment='Puntaje acumulado del participante en la competencia.'),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
     sa.ForeignKeyConstraint(['competition_id'], ['competitions.id'], ),
@@ -57,14 +58,21 @@ def upgrade():
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('competition_id', sa.Integer(), nullable=False),
     sa.Column('quiz_id', sa.Integer(), nullable=False),
+    sa.Column('time_limit', sa.Integer(), nullable=True, comment='Duración máxima en segundos para completar el cuestionario'),
+    sa.Column('processed', sa.Boolean(), nullable=True, comment='Indica si ya se procesaron los resultados'),
+    sa.Column('status', sa.String(length=50), nullable=False, comment='Estado del cuestionario dentro de la competencia'),
     sa.Column('start_time', sa.DateTime(timezone=True), nullable=True),
     sa.Column('end_time', sa.DateTime(timezone=True), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=False),
+    sa.CheckConstraint('time_limit >= 0', name='check_time_limit_positive'),
     sa.ForeignKeyConstraint(['competition_id'], ['competitions.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('competition_id', 'quiz_id', name='uq_competition_quiz')
     )
+    with op.batch_alter_table('competition_quizzes', schema=None) as batch_op:
+        batch_op.create_index(batch_op.f('ix_competition_quizzes_processed'), ['processed'], unique=False)
+
     op.create_table('competition_quiz_answers',
     sa.Column('id', sa.Integer(), nullable=False),
     sa.Column('competition_quiz_id', sa.Integer(), nullable=False),
@@ -85,6 +93,7 @@ def upgrade():
     sa.Column('competition_quiz_id', sa.Integer(), nullable=False),
     sa.Column('participant_id', sa.Integer(), nullable=False),
     sa.Column('score', sa.Integer(), nullable=True),
+    sa.Column('score_competition', sa.Integer(), nullable=True),
     sa.Column('start_time', sa.DateTime(timezone=True), nullable=True),
     sa.Column('end_time', sa.DateTime(timezone=True), nullable=True),
     sa.Column('created_at', sa.DateTime(timezone=True), nullable=False),
@@ -103,6 +112,9 @@ def downgrade():
         batch_op.drop_index('idx_quiz_participant')
 
     op.drop_table('competition_quiz_answers')
+    with op.batch_alter_table('competition_quizzes', schema=None) as batch_op:
+        batch_op.drop_index(batch_op.f('ix_competition_quizzes_processed'))
+
     op.drop_table('competition_quizzes')
     op.drop_table('competition_participants')
     with op.batch_alter_table('competitions', schema=None) as batch_op:

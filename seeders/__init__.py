@@ -3,6 +3,6 @@
 # from seeders.seed_answers import seed_answers
 
 def run_seeders():
-    print("Iniciando seeders...")
+    print("Iniciando seeders...NO HAGO NADA AUN")
 
     print("Seeders completados con éxito.")

@@ -105,7 +105,7 @@ class Competition(db.Model):
         """
         quiz = CompetitionQuiz.query.filter_by(competition_id=self.id, quiz_id=quiz_id).first()
         if not quiz:
-            raise ValueError(f"El quiz {quiz_id} no está asociado a la competencia {self.id}.")
+            raise ValueError(f"YY El quiz {quiz_id} no está asociado a la competencia {self.id}.")
         db.session.delete(quiz)
         db.session.commit()
 

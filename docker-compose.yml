@@ -14,12 +14,12 @@ services:
     networks:
       - my-network  # Misma red que pgAdmin
 
-  pgadmin:
+  pgadmin_comp:
     image: dpage/pgadmin4
-    container_name: pgadmin
+    container_name: pgadmin2
     restart: always
     ports:
-      - "5050:80"
+      - "5051:80"
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@example.com  # Cambia esto si quieres otro usuario
       PGADMIN_DEFAULT_PASSWORD: admin1234  # Debe coincidir con tu PostgreSQL

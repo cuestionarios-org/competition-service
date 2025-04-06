@@ -11,12 +11,6 @@ COPY entrypoint.sh /app/entrypoint.sh
 # Asegurar permisos de ejecución para el archivo
 RUN chmod +x /app/entrypoint.sh
 
-# # Instalar dos2unix para convertir CRLF a LF
-# RUN apt-get update && apt-get install -y dos2unix && \
-#     echo "Antes de conversión:" && file /app/entrypoint.sh && \
-#     dos2unix -v /app/entrypoint.sh && \
-#     echo "Después de conversión:" && file /app/entrypoint.sh
-
 # Instala las dependencias del proyecto
 RUN pip install -r requirements.txt
 
@@ -31,12 +25,12 @@ RUN apt-get update && apt-get install -y curl && \
     fi && \
     apt-get autoremove -yqq --purge curl && rm -rf /var/lib/apt/lists/*
 
-# Expón el puerto en el que el servicio de QA estará corriendo
-EXPOSE 5006
+# Definir el argumento COMPETITION_PORT (valor se pasa desde docker-compose)
+ARG COMPETITION_PORT=5016
 
-# Espera a que PostgreSQL esté disponible y luego inicia la aplicación
-# CMD ["dockerize", "-wait", "tcp://postgres:5432", "-timeout", "30s", "python", "run.py"]
-# CMD ["dockerize", "-wait", "tcp://postgres:5432", "-timeout", "30s", "flask", "db", "upgrade",  "python", "run.py"]
+# Definirlo como variable de entorno
+ENV PORT=$COMPETITION_PORT
+
 # Establecer el archivo de entrada como comando principal
 CMD ["/app/entrypoint.sh"]
 
