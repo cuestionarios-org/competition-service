@@ -1,5 +1,4 @@
+from .competition import CompetitionService
 from .competition_participant_service import CompetitionParticipantService
-from .competition_service import CompetitionService
 from .competition_quiz_participant_service import CompetitionQuizParticipantService
 from .competition_quiz import CompetitionQuizService
-
