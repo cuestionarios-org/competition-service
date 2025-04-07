@@ -7,80 +7,106 @@ from sqlalchemy.exc import SQLAlchemyError
 
 
 class CompetitionQuizParticipantService:
+
+    # 🧩 Validaciones privadas reutilizables
+    @staticmethod
+    def _get_quiz_or_404(competition_quiz_id):
+        quiz = CompetitionQuiz.query.filter_by(id=competition_quiz_id).first()
+        if not quiz:
+            raise NotFound(f"Quiz with id {competition_quiz_id} not found.")
+        return quiz
+
+    @staticmethod
+    def _check_participant_in_competition(competition_id, participant_id):
+        participante = CompetitionParticipant.query.filter_by(
+            competition_id=competition_id,
+            participant_id=participant_id
+        ).first()
+        if not participante:
+            raise NotFound(f"Participant {participant_id} is not registered in competition {competition_id}.")
+        return participante
+
+    @staticmethod
+    def _check_time_availability(quiz):
+        ahora = dt.datetime.now(timezone.utc)
+
+        if not quiz.start_time:
+            raise BadRequest(f"Quiz {quiz.id} does not have a start time configured.")
+
+        if quiz.end_time:
+            if ahora < quiz.start_time or ahora > quiz.end_time:
+                raise BadRequest(f"Quiz {quiz.id} is not available at this time.")
+        else:
+            if ahora < quiz.start_time:
+                raise BadRequest(f"Quiz {quiz.id} is not available yet.")
+
+    @staticmethod
+    def _check_participant_not_already_started(competition_quiz_id, participant_id):
+        existing = CompetitionQuizParticipants.query.filter_by(
+            competition_quiz_id=competition_quiz_id,
+            participant_id=participant_id
+        ).first()
+        if existing:
+            raise BadRequest(f"Participant {participant_id} already started quiz {competition_quiz_id}.")
+
+    # 🧠 Método público para inscribir al participante en el quiz
     @staticmethod
     def add_participant_to_quiz(competition_quiz_id, participant_id):
-        """
-        Inscribe un participante en un quiz de la competencia.
-        :param competition_quiz_id: ID del quiz en la competencia.
-        :param participant_id: ID del participante.
-        :return: Instancia de la inscripción creada.
-        """
-        competition_quiz = CompetitionQuiz.query.get(competition_quiz_id)
-        if not competition_quiz:
-            raise NotFound(f"Competition quiz with ID {competition_quiz_id} not found.")
+        try:
+            quiz = CompetitionQuizParticipantService._get_quiz_or_404(competition_quiz_id)
+            CompetitionQuizParticipantService._check_participant_not_already_started(competition_quiz_id, participant_id)
 
-        if CompetitionQuizParticipants.query.filter_by(competition_quiz_id=competition_quiz_id, participant_id=participant_id).first():
-            raise BadRequest(f"Participant {participant_id} is already registered in quiz {competition_quiz_id}.")
-
-        participant = CompetitionQuizParticipants(
-            competition_quiz_id=competition_quiz_id, 
-            participant_id=participant_id,
-            start_time=dt.datetime.now(timezone.utc) ,
+            participant = CompetitionQuizParticipants(
+                competition_quiz_id=competition_quiz_id,
+                participant_id=participant_id,
+                start_time=dt.datetime.now(timezone.utc)
             )
-        db.session.add(participant)
-        db.session.commit()
-        return participant
+            db.session.add(participant)
+            db.session.commit()
+            return participant
 
+        except (SQLAlchemyError, BadRequest, NotFound) as e:
+            db.session.rollback()
+            raise e  # Lo dejamos escalar para ser manejado por el handler global
+        except Exception as e:
+            db.session.rollback()
+            raise BadRequest(f"An unexpected error occurred while adding participant: {str(e)}")
+
+    # 🧠 Método público para iniciar el quiz
     @staticmethod
     def start_quiz(competition_quiz_id, participant_id):
-        """
-        Registra el tiempo de inicio cuando un participante comienza el quiz.
-        """
+        try:
+            quiz = CompetitionQuizParticipantService._get_quiz_or_404(competition_quiz_id)
+            competition_id = quiz.competition_id
 
-        # obtener el id de la competencia
-        cuestionario_en_competencia = CompetitionQuiz.query.filter_by(id=competition_quiz_id).first()
-        competition_id = cuestionario_en_competencia.competition_id
+            CompetitionQuizParticipantService._check_participant_in_competition(competition_id, participant_id)
+            CompetitionQuizParticipantService._check_participant_not_already_started(competition_quiz_id, participant_id)
+            CompetitionQuizParticipantService._check_time_availability(quiz)
 
-        # validar que el usuario este inscripto en la competencia
-        participante_en_competencia = CompetitionParticipant.query.filter_by(competition_id=competition_id, participant_id=participant_id).first()      
-
-        if not participante_en_competencia:
-            raise NotFound(f"Participant {participant_id} is not registered in competition {competition_id}.")
-        
-        # ESTA INSCRIPTO >> validar que el cuestionario no este ya iniciado por el usuario
-        participante_en_cuestionario = CompetitionQuizParticipants.query.filter_by(competition_quiz_id=competition_quiz_id, participant_id=participant_id).first()
-        if participante_en_cuestionario != None:
-            raise BadRequest(f"Participant {participant_id} is already registered in quiz {competition_quiz_id} for this competition {competition_id}.")  
-
-        # validar ue la fecha actual este entre fecha inicio y final del cuestionario
-        ahora = dt.datetime.now(timezone.utc) 
-        if ahora < cuestionario_en_competencia.start_time or ahora > cuestionario_en_competencia.end_time:
-            raise BadRequest(f"Quiz {competition_quiz_id} is not available at this time.")
-        
-        """
-        TODO: 
-        quizas validar el estado del cuestionario mas adelante
-        chequear tiempos inicial y final del cuestionario
-        """
-
-        # Damos de alta el usuario en este cuestionario, comienza a correr el tiempo.
-        participante_alta_en_cuestionario = CompetitionQuizParticipants(
-            competition_quiz_id=competition_quiz_id, 
-            participant_id=participant_id,
-            start_time = db.func.now()
+            participante_alta_en_cuestionario = CompetitionQuizParticipants(
+                competition_quiz_id=competition_quiz_id,
+                participant_id=participant_id,
+                start_time=db.func.now()
             )
-        db.session.add(participante_alta_en_cuestionario)
-        db.session.commit()
-        # Retornamos el participante añadido a la fila y otro datos
-        # con estos datos el gateway sabra formar el json para servir al cliente.
-        response = {
-            "competition_id": competition_id,
-            "participant_id": participant_id,
-            "start_time": participante_alta_en_cuestionario.start_time.isoformat() if participante_alta_en_cuestionario.start_time else None,
-            "competition_quiz_participant_id": participante_alta_en_cuestionario.id,
-            "quiz_id": cuestionario_en_competencia.quiz_id
-        }
-        return response
+            db.session.add(participante_alta_en_cuestionario)
+            db.session.commit()
+
+            return {
+                "competition_id": competition_id,
+                "participant_id": participant_id,
+                "start_time": participante_alta_en_cuestionario.start_time.isoformat()
+                    if participante_alta_en_cuestionario.start_time else None,
+                "competition_quiz_participant_id": participante_alta_en_cuestionario.id,
+                "quiz_id": quiz.quiz_id
+            }
+
+        except (SQLAlchemyError, BadRequest, NotFound) as e:
+            db.session.rollback()
+            raise e
+        except Exception as e:
+            db.session.rollback()
+            raise BadRequest(f"An unexpected error occurred while starting quiz: {str(e)}")
+
     @staticmethod
     def finish_quiz(competition_quiz_id, participant_id, answers):
         """
