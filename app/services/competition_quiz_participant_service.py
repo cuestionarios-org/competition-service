@@ -1,10 +1,14 @@
+import requests
 from app.models import CompetitionQuizParticipants, CompetitionQuiz, CompetitionParticipant,CompetitionQuizAnswer
 from extensions import db
 from werkzeug.exceptions import BadRequest, NotFound
 import datetime as dt
 from datetime  import timezone
 from sqlalchemy.exc import SQLAlchemyError
+import os
 
+# Construcción de la URL base del microservicio de competencias
+QA_SERVICE_URL = 'http://' + os.getenv('QA_HOST', 'localhost') + ':' + os.getenv('QA_PORT', '5013')
 
 class CompetitionQuizParticipantService:
 
@@ -48,6 +52,16 @@ class CompetitionQuizParticipantService:
         ).first()
         if existing:
             raise BadRequest(f"Participant {participant_id} already started quiz {competition_quiz_id}.")
+
+    @staticmethod
+    def _validate_question_with_answer_structure(question_with_answer_choice):
+        if not question_with_answer_choice or not isinstance(question_with_answer_choice, list):
+            raise BadRequest("Formato inválido: se espera una lista de respuestas.")
+
+        for item in question_with_answer_choice:
+            if not isinstance(item, dict) or 'answer_id' not in item or 'question_id' not in item:
+                raise BadRequest(f"Cada respuesta debe tener 'answer_id' y 'question_id'. {item}")
+
 
     # 🧠 Método público para inscribir al participante en el quiz
     @staticmethod
@@ -107,118 +121,7 @@ class CompetitionQuizParticipantService:
             db.session.rollback()
             raise BadRequest(f"An unexpected error occurred while starting quiz: {str(e)}")
 
-    @staticmethod
-    def finish_quiz(competition_quiz_id, participant_id, answers):
-        """
-        Registra el tiempo de finalización y guarda las respuestas validadas con su corrección.
-        """
-        time_finish = dt.datetime.now(timezone.utc)
-        
-        cuestionario_en_competencia = CompetitionQuiz.query.get(competition_quiz_id)
-        if not cuestionario_en_competencia:
-            raise NotFound(f"Competition quiz with ID {competition_quiz_id} not found.")
-        
-        competition_id = cuestionario_en_competencia.competition_id
-
-        # Validar inscripción en competencia
-        if not CompetitionParticipant.query.filter_by(
-            competition_id=competition_id,
-            participant_id=participant_id
-        ).first():
-            raise NotFound(f"Participant {participant_id} not registered in competition {competition_id}.")
-
-        # Obtener participación en cuestionario
-        participante_en_cuestionario = CompetitionQuizParticipants.query.filter_by(
-            competition_quiz_id=competition_quiz_id,
-            participant_id=participant_id
-        ).first()
-
-        if not participante_en_cuestionario:
-            raise BadRequest(f"Participant {participant_id} hasn't started this quiz.")
-
-        if participante_en_cuestionario.end_time:
-            raise BadRequest("Quiz already completed.")
-
-        # Validación de tiempo límite mejorada
-        time_limit = cuestionario_en_competencia.time_limit
-        if time_limit > 0:
-            time_start = participante_en_cuestionario.start_time
-            tiempo_transcurrido = (time_finish - time_start).total_seconds()
-            
-            if tiempo_transcurrido > time_limit:
-                raise BadRequest(
-                    f"Tiempo límite excedido ({tiempo_transcurrido:.1f}s de {time_limit}s)"
-                )
-        else:
-            raise BadRequest("El cuestionario no tiene tiempo límite configurado")
-
-        # Validación de estructura de respuestas
-        if not answers or not all(isinstance(a, dict) and 'answer_id' in a and 'is_correct' in a for a in answers):
-            raise BadRequest("Formato de respuestas inválido. Se espera lista de diccionarios con answer_id y is_correct")
-
-        # Procesamiento de respuestas
-        try:
-            # Extraer y validar IDs de respuestas
-            answer_ids = [a['answer_id'] for a in answers]
-            
-            # Verificar duplicados usando set para O(1) lookups
-            unique_ids = set()
-            for a in answers:
-                if a['answer_id'] in unique_ids:
-                    raise BadRequest(f"Respuesta duplicada para answer_id: {a['answer_id']}")
-                unique_ids.add(a['answer_id'])
-
-            # Crear respuestas con validación de tipos
-            new_answers = []
-            for answer in answers:
-                if not isinstance(answer['is_correct'], bool):
-                    raise BadRequest(f"Valor is_correct inválido para answer_id {answer['answer_id']}")
-                    
-                new_answers.append(
-                    CompetitionQuizAnswer(
-                        competition_quiz_id=competition_quiz_id,
-                        participant_id=participant_id,
-                        answer_id=answer['answer_id'],
-                        is_correct=answer['is_correct'],
-                        question_id=answer.get('question_id')  # Si viene del gateway
-                    )
-                )
-
-            # Transacción atómica
-            db.session.bulk_save_objects(new_answers)
-            participante_en_cuestionario.end_time = time_finish
-            
-            # Actualizar puntaje
-           
-            tiempo_total = (participante_en_cuestionario.end_time - participante_en_cuestionario.start_time).total_seconds()
-        
-            correctas = sum(a['is_correct'] for a in answers)
-            tiempo_no_utilizado = time_limit - tiempo_total
-            puntaje = correctas * tiempo_no_utilizado
-            participante_en_cuestionario.score = puntaje 
-            db.session.commit()
-
-        except SQLAlchemyError as e:
-            db.session.rollback()
-            raise BadRequest(f"Error de base de datos: {str(e)}")
-
-        
-        return {
-            "competition_id": competition_id,
-            "participant_id": participant_id,
-            "quiz_id": cuestionario_en_competencia.quiz_id,
-            "summary": {
-                "correct_answers": sum(a['is_correct'] for a in answers),
-                "score": participante_en_cuestionario.score,
-                "time_spent": f"{tiempo_total:.2f}s",
-                "time_limit": f"{time_limit}s"
-            },
-            "answers": [{
-                "answer_id": a.answer_id,
-                "is_correct": a.is_correct,
-                "question_id": a.question_id
-            } for a in new_answers]
-        }
+    
     @staticmethod
     def get_by_user_and_quiz(competition_quiz_id, participant_id):
         """
@@ -294,3 +197,129 @@ class CompetitionQuizParticipantService:
         }
 
         return response
+
+    @staticmethod
+    def _check_answer_correctness_bulk(answers):
+        """
+        Llama al microservicio de QA para obtener la respuesta correcta por pregunta.
+        Devuelve un dict {question_id: correct_answer_id}
+        """
+        try:
+            response = requests.post(
+                f"{QA_SERVICE_URL}/answer/answers/check",
+                json={"answers": answers},  # cada uno con question_id y answer_id
+                timeout=5
+            )
+            response.raise_for_status()
+            results = response.json().get("answers", [])
+
+            return {
+                str(item["question_id"]): item["correct_answer_id"]
+                for item in results
+            }
+        except requests.RequestException as e:
+            raise BadRequest(f"No se pudo validar respuestas: {str(e)}")
+
+
+    @staticmethod
+    def finish_quiz(competition_quiz_id, participant_id, question_with_answer_choice):
+        """
+        Registra el tiempo de finalización y guarda las respuestas validadas con su corrección.
+        """
+        try:
+            time_finish = dt.datetime.now(timezone.utc)
+
+            quiz = CompetitionQuizParticipantService._get_quiz_or_404(competition_quiz_id)
+            competition_id = quiz.competition_id
+
+            CompetitionQuizParticipantService._check_participant_in_competition(competition_id, participant_id)
+
+            participante = CompetitionQuizParticipants.query.filter_by(
+                competition_quiz_id=competition_quiz_id,
+                participant_id=participant_id
+            ).first()
+
+            if not participante:
+                raise BadRequest(f"Participant {participant_id} hasn't started this quiz.")
+
+            if participante.end_time:
+                raise BadRequest("Quiz already completed.")
+
+            time_limit = quiz.time_limit
+            if time_limit < 0:
+                raise BadRequest(f"El cuestionario no tiene tiempo límite configurado {time_limit}")
+
+            tiempo_transcurrido = (time_finish - participante.start_time).total_seconds()
+            if time_limit != 0 and tiempo_transcurrido > time_limit:
+                raise BadRequest(f"Tiempo límite excedido ({tiempo_transcurrido:.1f}s de {time_limit}s)")
+
+            CompetitionQuizParticipantService._validate_question_with_answer_structure(question_with_answer_choice)
+
+            # Validar duplicados
+            unique_ids = set()
+            for q in question_with_answer_choice:
+                question_id = q['question_id']
+                if question_id in unique_ids:
+                    raise BadRequest(f"Pregunta duplicada para question_id: {question_id}")
+                unique_ids.add(question_id)
+
+            # Validar respuestas con el microservicio QA
+            correct_map = CompetitionQuizParticipantService._check_answer_correctness_bulk(question_with_answer_choice)
+
+            new_answers = []
+            correctas = 0
+            for q in question_with_answer_choice:
+                question_id = q['question_id']
+                user_answer_id = q['answer_id']
+                correct_answer_id = correct_map.get(str(question_id))
+
+                if correct_answer_id is None:
+                    raise BadRequest(f"No se pudo validar la respuesta de la pregunta {question_id}")
+
+                is_correct = user_answer_id == correct_answer_id
+                if is_correct:
+                    correctas += 1
+
+                new_answers.append(
+                    CompetitionQuizAnswer(
+                        competition_quiz_id=competition_quiz_id,
+                        participant_id=participant_id,
+                        answer_id=user_answer_id,
+                        is_correct=is_correct,
+                        question_id=question_id
+                    )
+                )
+
+            # raise BadRequest(f"Error al guardar la respuesta: {new_answers}")
+            # Guardar respuestas y finalizar quiz
+            db.session.bulk_save_objects(new_answers)
+            participante.end_time = time_finish
+
+            tiempo_no_utilizado = time_limit - tiempo_transcurrido
+            participante.score = correctas * tiempo_no_utilizado
+
+            db.session.commit()
+
+            return {
+                "competition_id": competition_id,
+                "participant_id": participant_id,
+                "quiz_id": quiz.quiz_id,
+                "summary": {
+                    "correct_answers": correctas,
+                    "score": participante.score,
+                    "time_spent": f"{tiempo_transcurrido:.2f}s",
+                    "time_limit": f"{time_limit}s"
+                },
+                "answers": [{
+                    "question_id": a.question_id,
+                    "answer_id": a.answer_id,
+                    "is_correct": a.is_correct
+                } for a in new_answers]
+            }
+
+        except (SQLAlchemyError, BadRequest, NotFound) as e:
+            db.session.rollback()
+            raise e
+        except Exception as e:
+            db.session.rollback()
+            raise BadRequest(f"Unexpected error while finishing quiz: {str(e)}")

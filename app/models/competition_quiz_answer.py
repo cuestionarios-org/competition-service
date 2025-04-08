@@ -28,14 +28,14 @@ class CompetitionQuizAnswer(db.Model):
         db.UniqueConstraint(
             'competition_quiz_id', 
             'participant_id', 
-            'answer_id', 
+            'question_id', 
             name='uq_quiz_participant_answer'
         ),  # Evita respuestas duplicadas a la misma pregunta
         db.Index('idx_quiz_participant', 'competition_quiz_id', 'participant_id'),  # Búsquedas rápidas
     )
 
     def __repr__(self):
-        return f"<CompetitionQuizAnswer Quiz {self.competition_quiz_id} - Participante {self.participant_id} - Respuesta {self.answer_id}>"
+        return f"<CompetitionQuizAnswer Quiz {self.competition_quiz_id} - Participante {self.participant_id} - Pregunta {self.question_id} - Respuesta {self.answer_id}>"
 
     def to_dict(self):
         return {
