@@ -182,3 +182,47 @@ def get_competition_ranking(competition_id):
         return jsonify(ranking), 200
     except Exception as e:
         return jsonify({"msg": f"Error fetching competition ranking: {str(e)}"}), 400
+
+# --------------------------------------------
+# 📚 Ruta: Obtener competencias de un usuario
+# --------------------------------------------
+@competition_bp.route('/users/<int:user_id>', methods=['GET'])
+def get_user_competitions(user_id):
+    """
+    Obtiene las competencias relacionadas con un usuario:
+      - pending: aún no inscritas (start_date > ahora)
+      - active: en curso y donde participa
+      - finished: finalizadas y donde participó
+
+    Método: GET
+    Endpoint: /competitions/users/<user_id>
+    Query params opcionales:
+      - status: 'pending', 'active', 'finished' (separados por comas)
+        p.ej. ?status=active,finished
+    Respuestas:
+      - 200: { "pending": [...], "active": [...], "finished": [...] }
+      - 400: parámetro inválido
+      - 500: error interno
+    """
+    try:
+        # Extraigo el parámetro `status`, si existe
+        status_param = request.args.get('status')
+        statuses = status_param.split(',') if status_param else None
+
+        # Delego a un servicio que implemente la lógica
+        # Deberías crear CompetitionService.get_user_competitions
+        result = CompetitionParticipantService.get_user_competitions(user_id, statuses)
+
+        # Espero que `result` sea algo como:
+        # { "pending": [...], "active": [...], "finished": [...] }
+        return jsonify(result), 200
+
+    except ValueError as ve:
+        # Por ejemplo, estado inválido
+        return jsonify({ "msg": str(ve) }), 400
+
+    except Exception as e:
+        return jsonify({
+            "msg": "Error al obtener competencias del usuario",
+            "error": str(e)
+        }), 500
