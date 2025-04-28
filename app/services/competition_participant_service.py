@@ -135,66 +135,53 @@ class CompetitionParticipantService:
     def get_user_competitions(user_id, statuses=None):
         """
         Devuelve las competencias relacionadas con un usuario, clasificadas por estado:
-          - pending: aún no inscritas (start_date > ahora)
-          - active: en curso y donde participa
-          - finished: finalizadas y donde participó
+          - pending: estado 'lista' (próximas) donde NO está inscrito
+          - active: estado 'en curso' donde está inscrito
+          - finished: estados 'cerrada' o 'finalizada' donde participó
 
         :param user_id: ID del usuario.
-        :param statuses: Lista de estados a incluir ('pending', 'active', 'finished'),
-                         o None para todas.
-        :return: Diccionario con claves 'pending', 'active' y 'finished'.
-        :raises ValueError: Si se incluye un estado inválido en `statuses`.
+        :param statuses: Lista de claves a incluir ('pending','active','finished') o None para todas.
+        :return: Diccionario con claves 'pending','active','finished'.
+        :raises ValueError: Si se incluye una clave inválida en `statuses`.
         """
-        now = datetime.utcnow()
-
-        # Validar parámetros de estado
-        valid_statuses = {"pending", "active", "finished"}
+        # Validar parámetros de clave
+        valid_keys = {'pending','active','finished'}
         if statuses:
-            invalid = set(statuses) - valid_statuses
+            invalid = set(statuses) - valid_keys
             if invalid:
-                raise ValueError(f"Estados inválidos: {', '.join(invalid)}")
+                raise ValueError(f"Claves inválidas: {', '.join(invalid)}")
 
         result = {}
-
-        # 1) Pending: competencias futuras donde el usuario NO está inscrito
+        # PENDING: competencias en estado 'lista' y donde el usuario NO está inscrito
         if statuses is None or 'pending' in statuses:
-            future_comps = (
-                Competition.query
-                .filter(Competition.start_date > now)
-                .all()
-            )
+            comps = Competition.query.filter_by(state='lista').all()
             result['pending'] = [
-                comp.to_dict() for comp in future_comps
+                c.to_dict() for c in comps
                 if not CompetitionParticipant.query
-                      .filter_by(competition_id=comp.id, participant_id=user_id)
+                      .filter_by(competition_id=c.id, participant_id=user_id)
                       .first()
             ]
 
-        # 2) Active: competencias activas donde el usuario está inscrito
+        
+        # ACTIVE: competencias en estado 'en curso' o 'lista' donde el usuario está inscrito
         if statuses is None or 'active' in statuses:
-            active_comps = (
-                Competition.query
-                .filter(Competition.start_date <= now, Competition.end_date >= now)
-                .all()
-            )
+            active_comps = Competition.query.filter(
+                Competition.state.in_(['en curso','lista'])
+            ).all()
             result['active'] = [
-                comp.to_dict() for comp in active_comps
+                c.to_dict() for c in active_comps
                 if CompetitionParticipant.query
-                      .filter_by(competition_id=comp.id, participant_id=user_id)
+                      .filter_by(competition_id=c.id, participant_id=user_id)
                       .first()
             ]
 
-        # 3) Finished: competencias pasadas donde el usuario participó
+        # FINISHED: competencias con estado 'cerrada' o 'finalizada' donde participó
         if statuses is None or 'finished' in statuses:
-            past_comps = (
-                Competition.query
-                .filter(Competition.end_date < now)
-                .all()
-            )
+            comps = Competition.query.filter(Competition.state.in_(['cerrada','finalizada'])).all()
             result['finished'] = [
-                comp.to_dict() for comp in past_comps
+                c.to_dict() for c in comps
                 if CompetitionParticipant.query
-                      .filter_by(competition_id=comp.id, participant_id=user_id)
+                      .filter_by(competition_id=c.id, participant_id=user_id)
                       .first()
             ]
 
