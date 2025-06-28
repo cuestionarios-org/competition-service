@@ -148,6 +148,18 @@ class CompetitionService:
         if 'modified_by' in data:
             competition.modified_by = data['modified_by']
 
+        if 'participant_limit' in data:
+            competition.participant_limit = data['participant_limit']
+
+        if 'currency_cost' in data:
+            competition.currency_cost = data['currency_cost']
+
+        if 'ticket_cost' in data:
+            competition.ticket_cost = data['ticket_cost']
+
+        if 'credit_cost' in data:
+            competition.credit_cost = data['credit_cost']
+
         # Actualización de quizzes usando helper
         if 'quizzes' in data:
             update_quizzes(competition, data['quizzes'])
