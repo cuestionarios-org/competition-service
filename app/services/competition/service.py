@@ -143,7 +143,10 @@ class CompetitionService:
             competition.end_date = parser.isoparse(data['end_date'])
 
         if 'state' in data:
-            competition.state = data['state']
+            competition.set_state(data['state'])
+
+        if 'modified_by' in data:
+            competition.modified_by = data['modified_by']
 
         # Actualización de quizzes usando helper
         if 'quizzes' in data:
