@@ -295,8 +295,11 @@ class CompetitionQuizParticipantService:
             db.session.bulk_save_objects(new_answers)
             participante.end_time = time_finish
 
-            tiempo_no_utilizado = time_limit - tiempo_transcurrido
-            participante.score = correctas * tiempo_no_utilizado
+            if time_limit == 0:
+                participante.score = correctas
+            else:
+                tiempo_no_utilizado = time_limit - tiempo_transcurrido
+                participante.score = correctas * tiempo_no_utilizado
 
             db.session.commit()
 
