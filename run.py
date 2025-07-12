@@ -7,6 +7,7 @@ from sqlalchemy import text
 from app.utils.commands.cli import seed, init_db
 from app.routes.competitions import competition_bp
 from app.routes.quizz_participation import quiz_participation_bp
+from app.routes.competition_quiz import competition_quiz_bp
 from app.utils.db import create_database_if_not_exists
 
 from app.utils.errors.handlers import register_error_handlers
@@ -30,11 +31,12 @@ def create_app(config_name='development'):
     # app.register_blueprint(question_bp, url_prefix='/questions')
     app.register_blueprint(competition_bp, url_prefix='/competitions')
     app.register_blueprint(quiz_participation_bp, url_prefix='/quiz-participation')
-    
+    app.register_blueprint(competition_quiz_bp, url_prefix='/competition-quiz')
+
     @app.route('/')
     def index():
         return jsonify({
-            'message': 'Welcome to the competition MicroService!',
+            'message': 'Welcome to the COMPETITION MicroService!',
             'status': 'success',
             'documentation': '/docs'  # Ejemplo de ruta de documentación
         })

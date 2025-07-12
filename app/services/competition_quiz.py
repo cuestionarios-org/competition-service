@@ -4,6 +4,7 @@ from extensions import db
 from app.models import CompetitionQuiz, CompetitionQuizParticipants, CompetitionParticipant
 from datetime import datetime, timezone
 from app.utils.lib.constants import CompetitionQuizStatus
+from werkzeug.exceptions import NotFound, BadRequest
 
 class CompetitionQuizService:
     @staticmethod
@@ -149,3 +150,30 @@ class CompetitionQuizService:
         if updates:
             db.session.bulk_update_mappings(CompetitionParticipant, updates)
             print(f"✅ Puntajes recalculados para competencia {competition_id}")
+
+    @staticmethod
+    def update_competition_quiz(competition_quiz_id, data):
+        quiz = CompetitionQuiz.query.get(competition_quiz_id)
+        if not quiz:
+            raise NotFound(f"CompetitionQuiz con ID {competition_quiz_id} no encontrado.")
+        if 'start_time' in data:
+            quiz.start_time = CompetitionQuizService._parse_datetime(data['start_time'])
+        if 'end_time' in data:
+            quiz.end_time = CompetitionQuizService._parse_datetime(data['end_time'])
+        if 'time_limit' in data:
+            quiz.time_limit = int(data['time_limit'])
+        db.session.commit()
+        return quiz
+
+    @staticmethod
+    def _parse_datetime(value):
+        if value is None:
+            return None
+        if isinstance(value, str):
+            try:
+                return datetime.fromisoformat(value)
+            except Exception:
+                raise BadRequest(f"Formato de fecha inválido: {value}. Usar ISO 8601.")
+        if isinstance(value, datetime):
+            return value
+        raise BadRequest(f"Tipo de fecha inválido: {type(value)}")
